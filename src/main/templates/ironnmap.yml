@@ -1,0 +1,29 @@
+# IF-MAP connection information
+ifmap:
+    server:
+        url:
+            basic: https://127.0.0.1:8443
+            cert: https://127.0.0.1:8444
+        auth:
+            # IF-MAP authentication method, valid values are 'cert' and 'basic'		
+            method: cert
+            user: ironnmap
+            password: ironnmap
+
+
+    client:
+        # Time of keepalive to ifmapserver in minutes 
+        keepalive: 1
+        # the path to the keystore
+        keystore:
+            path: /ironnmap.jks
+            # the keystore password
+            password: ironnmap
+        # Name of the package where publish strategy classes have to lie
+        publishstrategiespath: de.hshannover.f4.trust.ironnmap.publisher.strategies.
+        # Name to the list of classes which implements the RequestStrategies
+        publishstrategies:
+            blub: disabled
+
+
+
