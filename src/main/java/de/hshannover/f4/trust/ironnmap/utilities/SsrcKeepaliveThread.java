@@ -36,3 +36,48 @@
  * limitations under the License.
  * #L%
  */
+package de.hshannover.f4.trust.ironnmap.utilities;
+
+import java.util.TimerTask;
+import java.util.logging.Logger;
+
+import de.hshannover.f4.trust.ifmapj.exception.IfmapErrorResult;
+import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
+
+/**
+ * A {@link Keepalive} can be used to keep an IF-MAP connection alive, by
+ * continuously sending a re-new session request to the MAPS.
+ * 
+ * @author Marius Rohde
+ * 
+ */
+
+public class SsrcKeepaliveThread extends TimerTask {
+
+	private static final Logger LOGGER = Logger.getLogger(SsrcKeepaliveThread.class.getName());
+
+	@Override
+	public void run() {
+
+		try {
+			IfMap.getSsrc().renewSession();
+
+		} catch (IfmapException e) {
+			LOGGER.severe("renewSession failed: " + e.getMessage());
+			try {
+				IfMap.getSsrc().endSession();
+			} catch (Exception ex) {
+				LOGGER.warning("error while ending the session");
+			}
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("renewSession failed: " + e.getMessage());
+			try {
+				IfMap.getSsrc().endSession();
+			} catch (Exception ex) {
+				LOGGER.warning("error while ending the session");
+			}
+		}
+		LOGGER.info("SSRC session renewed");
+	}
+
+}
