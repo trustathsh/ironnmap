@@ -36,34 +36,52 @@
  * limitations under the License.
  * #L%
  */
-
-package de.hshannover.f4.trust.ironnmap.publisher;
+package de.hshannover.f4.trust.ironnmap.publisher.strategies;
 
 import java.util.ArrayList;
 
+import org.nmap4j.Nmap4j;
+import org.nmap4j.core.nmap.NMapExecutionException;
+import org.nmap4j.core.nmap.NMapInitializationException;
+import org.nmap4j.data.NMapRun;
+
+import de.hshannover.f4.trust.ironnmap.publisher.PublishNmapStrategy;
+
 /**
- * This abstract class is an abstract represent of the Implementation of the
- * different publisher strategies
+ * This class is the implementation to request Nmap one time for all
+ * informations specified by flags for a range of hosts
  * 
  * 
  * @author Marius Rohde
  * 
  */
 
-public abstract class PublishNmapStrategy {
+public class ScanSingleTime extends PublishNmapStrategy {
 
-	/**
-	 * Abstract methode to publish the the informations. Has to be implemented
-	 * by the different subclass strategies
-	 * 
-	 * @param ipFrom
-	 * 			  from ip range
-	 * @param ipFrom
-	 * 			  till ip range
-	 * @param nmapFlags
-	 *            Arraylist of nmap flags for scanning hosts
-	 * 
-	 */
-	public abstract void publishNmapStrategy(String ipFrom, String ipTill, ArrayList<String> nmapFlags);
+	@Override
+	public void publishNmapStrategy(String ipFrom, String ipTill, ArrayList<String> nmapFlags) {
+		// TODO Auto-generated method stub
 
+		Nmap4j nmap4j = new Nmap4j("/usr");
+		nmap4j.includeHosts("192.168.1.240");
+		nmap4j.addFlags("-T3 -oN -sV");
+		
+		try {
+			nmap4j.execute();
+		} catch (NMapInitializationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NMapExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (!nmap4j.hasError()) {
+			NMapRun nmapRun = nmap4j.getResult();
+			System.out.println(nmap4j.getOutput());
+			System.out.println(nmapRun);
+		} else {
+			System.out.println(nmap4j.getExecutionResults().getErrors());
+		}
+	}
 }

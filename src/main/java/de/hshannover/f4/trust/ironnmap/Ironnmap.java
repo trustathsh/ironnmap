@@ -53,6 +53,7 @@ import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
 import de.hshannover.f4.trust.ifmapj.exception.InitializationException;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.ironnmap.publisher.StrategyChainBuilder;
+import de.hshannover.f4.trust.ironnmap.publisher.strategies.ScanSingleTime;
 import de.hshannover.f4.trust.ironnmap.utilities.IfMap;
 import de.hshannover.f4.trust.ironnmap.utilities.SsrcKeepaliveThread;
 
@@ -106,6 +107,11 @@ public final class Ironnmap {
 		} catch (PropertyException e1) {
 			LOGGER.severe("Error setting up the configuration... System can not start!");
 		}
+		
+		
+		ScanSingleTime oneTime = new ScanSingleTime();
+		oneTime.publishNmapStrategy(null,null,null);
+		
 	}
 
 	/**

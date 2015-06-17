@@ -87,7 +87,7 @@ public final class StrategyChainBuilder {
 		while (iteClassnames.hasNext()) {
 
 			Entry<String, Object> classname = iteClassnames.next();
-			LOGGER.info("found classString " + classname.getKey().toString());
+			LOGGER.info("found classString in Properties: " + classname.getKey().toString());
 
 			if (classname.getValue().toString().equals("enabled")) {
 
@@ -95,6 +95,8 @@ public final class StrategyChainBuilder {
 				if (publisherStrategy != null) {
 					strategyChain.add(publisherStrategy);
 				}
+			}else{
+				LOGGER.warning("Class is not enabled!: " + classname.getKey().toString());
 			}
 		}
 	}

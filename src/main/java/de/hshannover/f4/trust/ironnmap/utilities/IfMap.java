@@ -99,7 +99,7 @@ public final class IfMap {
 			LOGGER.severe("could not read the security informations for basic or cert authentication: " + e);
 			throw e;
 		}
-		LOGGER.info("connected to SSRC");
+		LOGGER.info("SSRC initialized");
 		
 		return ifmapSsrc;
 	}

@@ -23,7 +23,7 @@ ifmap:
         publishstrategiespath: de.hshannover.f4.trust.ironnmap.publisher.strategies.
         # Name to the list of classes which implements the RequestStrategies
         publishstrategies:
-            blub: disabled
+            ScanSingleTime: enabled
 
 
 
