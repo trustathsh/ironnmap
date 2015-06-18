@@ -110,13 +110,13 @@ public final class StrategyChainBuilder {
 
 	private static PublishNmapStrategy createNewStrategie(String className) {
 
-		PublishNmapStrategy request = null;
+		PublishNmapStrategy strategy = null;
 
 		try {
 			Class<?> cl = Class.forName(className);
 			LOGGER.info(cl.toString() + " instantiated");
 			if (cl.getSuperclass() == PublishNmapStrategy.class) {
-				request = (PublishNmapStrategy) cl.newInstance();
+				strategy = (PublishNmapStrategy) cl.newInstance();
 			}
 
 		} catch (ClassNotFoundException e) {
@@ -127,7 +127,7 @@ public final class StrategyChainBuilder {
 			LOGGER.severe("IllegalAccessException");
 		}
 
-		return request;
+		return strategy;
 	}
 
 	/**

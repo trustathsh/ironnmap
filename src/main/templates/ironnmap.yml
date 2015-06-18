@@ -19,11 +19,14 @@ ifmap:
             path: /ironnmap.jks
             # the keystore password
             password: ironnmap
+        nmap:
+            path: /usr
         # Name of the package where publish strategy classes have to lie
         publishstrategiespath: de.hshannover.f4.trust.ironnmap.publisher.strategies.
-        # Name to the list of classes which implements the RequestStrategies
+        # Name to the list of classes which implements the nmap Strategies
         publishstrategies:
-            ScanSingleTime: enabled
+            blub: disabled
+
 
 
 

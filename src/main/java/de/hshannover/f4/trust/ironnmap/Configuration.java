@@ -78,6 +78,7 @@ public final class Configuration {
 	private static final String IFMAP_KEEPALIVE = "ifmap.client.keepalive";
 	private static final String KEYSTORE_PATH = "ifmap.client.keystore.path";
 	private static final String KEYSTORE_PASSWORD = "ifmap.client.keystore.password";
+	private static final String NMAP_PATH = "ifmap.client.nmap.path";
 
 	private static final String STRATEGIES_PACKAGE_PATH = "ifmap.client.publishstrategiespath";
 	private static final String STRATEGIES_CLASSNAMES_FILENAME = "ifmap.client.publishstrategies";
@@ -227,6 +228,17 @@ public final class Configuration {
 	 */
 	public static String strategiesPackagePath() throws PropertyException {
 		return mProperties.getString(STRATEGIES_PACKAGE_PATH);
+	}
+	
+	/**
+	 * Getter for the nmapPath property.
+	 * 
+	 * @return property string
+	 * @throws PropertyException
+	 *             what the name says
+	 */
+	public static String nmapPath() throws PropertyException {
+		return mProperties.getString(NMAP_PATH);
 	}
 
 }

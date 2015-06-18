@@ -38,13 +38,7 @@
  */
 package de.hshannover.f4.trust.ironnmap.publisher.strategies;
 
-import java.util.ArrayList;
-
-import org.nmap4j.Nmap4j;
-import org.nmap4j.core.nmap.NMapExecutionException;
-import org.nmap4j.core.nmap.NMapInitializationException;
-import org.nmap4j.data.NMapRun;
-
+import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.ironnmap.publisher.PublishNmapStrategy;
 
 /**
@@ -58,30 +52,27 @@ import de.hshannover.f4.trust.ironnmap.publisher.PublishNmapStrategy;
 
 public class ScanSingleTime extends PublishNmapStrategy {
 
-	@Override
-	public void publishNmapStrategy(String ipFrom, String ipTill, ArrayList<String> nmapFlags) {
-		// TODO Auto-generated method stub
+	String mIpInclude;
+	String mIpExclude;
+	String mNmapFlags;
 
-		Nmap4j nmap4j = new Nmap4j("/usr");
-		nmap4j.includeHosts("192.168.1.240");
-		nmap4j.addFlags("-T3 -oN -sV");
-		
-		try {
-			nmap4j.execute();
-		} catch (NMapInitializationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NMapExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		if (!nmap4j.hasError()) {
-			NMapRun nmapRun = nmap4j.getResult();
-			System.out.println(nmap4j.getOutput());
-			System.out.println(nmapRun);
-		} else {
-			System.out.println(nmap4j.getExecutionResults().getErrors());
-		}
+	public ScanSingleTime(String ipInclude, String ipExclude, String nmapFlags) throws PropertyException {
+		super();
+		mIpInclude = ipInclude;
+		mIpExclude = ipExclude;
+		mNmapFlags = nmapFlags;
 	}
+
+	@Override
+	public void publishNmapStrategy() {
+
+		String xmlString = getNmapXmlString(mIpInclude, mIpExclude, mNmapFlags);
+		if(xmlString != null){
+			System.out.println(xmlString);
+		}
+		
+	}
+
+
+
 }

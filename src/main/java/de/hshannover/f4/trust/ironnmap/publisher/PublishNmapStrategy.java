@@ -39,7 +39,15 @@
 
 package de.hshannover.f4.trust.ironnmap.publisher;
 
-import java.util.ArrayList;
+import java.util.logging.Logger;
+
+import org.nmap4j.Nmap4j;
+import org.nmap4j.core.nmap.NMapExecutionException;
+import org.nmap4j.core.nmap.NMapInitializationException;
+import org.nmap4j.data.NMapRun;
+
+import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
+import de.hshannover.f4.trust.ironnmap.Configuration;
 
 /**
  * This abstract class is an abstract represent of the Implementation of the
@@ -52,18 +60,66 @@ import java.util.ArrayList;
 
 public abstract class PublishNmapStrategy {
 
+	private static final Logger LOGGER = Logger.getLogger(PublishNmapStrategy.class.getName());
+
+	private Nmap4j nmap4j;
+
+	protected PublishNmapStrategy() throws PropertyException {
+		nmap4j = new Nmap4j(Configuration.nmapPath());
+	}
+
 	/**
 	 * Abstract methode to publish the the informations. Has to be implemented
 	 * by the different subclass strategies
 	 * 
 	 * @param ipFrom
-	 * 			  from ip range
+	 *            from ip range
 	 * @param ipFrom
-	 * 			  till ip range
+	 *            till ip range
 	 * @param nmapFlags
 	 *            Arraylist of nmap flags for scanning hosts
 	 * 
 	 */
-	public abstract void publishNmapStrategy(String ipFrom, String ipTill, ArrayList<String> nmapFlags);
+	public abstract void publishNmapStrategy();
+
+	/**
+	 * Helper method to get the xml String of nmap output
+	 * 
+	 * @param ipInclude
+	 *            included Hosts ip range
+	 * @param ipExclude
+	 *            excluded Hosts ip range
+	 * @param nmapFlags
+	 *            Arraylist of nmap flags for scanning hosts
+	 * 
+	 */
+	public String getNmapXmlString(String ipInclude, String ipExclude, String nmapFlags) {
+
+		String xmlString = null;
+
+		nmap4j.includeHosts(ipInclude);
+		if ((!ipExclude.equals("") && ipExclude != null) ) {
+			nmap4j.excludeHosts(ipExclude);
+		}
+
+		nmap4j.addFlags(nmapFlags);
+
+		try {
+			nmap4j.execute();
+		} catch (NMapInitializationException e) {
+			LOGGER.severe("Error initializing NMAP: " + e);
+		} catch (NMapExecutionException e) {
+			LOGGER.severe("Error executing NMAP: " + e);
+		}
+
+		if (!nmap4j.hasError()) {
+			NMapRun nmapRun = nmap4j.getResult();
+			xmlString = nmap4j.getOutput();
+		} else {
+			LOGGER.severe(nmap4j.getExecutionResults().getErrors());
+		}
+
+		return xmlString;
+	}
 
 }

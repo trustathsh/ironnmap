@@ -109,8 +109,16 @@ public final class Ironnmap {
 		}
 		
 		
-		ScanSingleTime oneTime = new ScanSingleTime();
-		oneTime.publishNmapStrategy(null,null,null);
+		ScanSingleTime oneTime;
+		try {
+			
+			oneTime = new ScanSingleTime("192.168.1.14","","-PN -O");
+			oneTime.publishNmapStrategy();
+		} catch (PropertyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 	}
 
