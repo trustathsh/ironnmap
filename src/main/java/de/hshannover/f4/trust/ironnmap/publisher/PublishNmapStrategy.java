@@ -46,6 +46,7 @@ import org.nmap4j.core.nmap.NMapExecutionException;
 import org.nmap4j.core.nmap.NMapInitializationException;
 import org.nmap4j.data.NMapRun;
 
+import de.hshannover.f4.trust.ifmapj.channel.SSRC;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.ironnmap.Configuration;
 
@@ -60,27 +61,26 @@ import de.hshannover.f4.trust.ironnmap.Configuration;
 
 public abstract class PublishNmapStrategy {
 
-	private static final Logger LOGGER = Logger.getLogger(PublishNmapStrategy.class.getName());
+	private static final Logger LOGGER = Logger
+			.getLogger(PublishNmapStrategy.class.getName());
 
-	private Nmap4j nmap4j;
+	private Nmap4j mNmap4j;
 
+	/**
+	 * Constructor to initialize nMap4j for the PublishNmapStrategy
+	 * 
+	 * @throws PropertyException
+	 *             Configuration read
+	 */
 	protected PublishNmapStrategy() throws PropertyException {
-		nmap4j = new Nmap4j(Configuration.nmapPath());
+		mNmap4j = new Nmap4j(Configuration.nmapPath());
 	}
 
 	/**
 	 * Abstract methode to publish the the informations. Has to be implemented
 	 * by the different subclass strategies
-	 * 
-	 * @param ipFrom
-	 *            from ip range
-	 * @param ipFrom
-	 *            till ip range
-	 * @param nmapFlags
-	 *            Arraylist of nmap flags for scanning hosts
-	 * 
 	 */
-	public abstract void publishNmapStrategy();
+	public abstract void publishNmapStrategy(SSRC ssrc);
 
 	/**
 	 * Helper method to get the xml String of nmap output
@@ -91,37 +91,36 @@ public abstract class PublishNmapStrategy {
 	 *            excluded Hosts ip range
 	 * @param nmapFlags
 	 *            Arraylist of nmap flags for scanning hosts
-	 * 
+	 * @return Nmap XML prent node nmaprun
 	 */
-	public NMapRun getNmapXmlString(String ipInclude, String ipExclude, String nmapFlags) {
-
+	public NMapRun getNmapXmlString(String ipInclude, String ipExclude,
+			String nmapFlags) {
 
 		NMapRun nmapRun = null;
-		
-		nmap4j.includeHosts(ipInclude);
-		if(ipExclude != null){
-			if (!ipExclude.equals("") ) {
-				nmap4j.excludeHosts(ipExclude);
+
+		mNmap4j.includeHosts(ipInclude);
+		if (ipExclude != null) {
+			if (!ipExclude.equals("")) {
+				mNmap4j.excludeHosts(ipExclude);
 			}
 		}
-		nmap4j.addFlags(nmapFlags);
+		mNmap4j.addFlags(nmapFlags);
 
 		try {
-			nmap4j.execute();
+			mNmap4j.execute();
 		} catch (NMapInitializationException e) {
 			LOGGER.severe("Error initializing NMAP: " + e);
 		} catch (NMapExecutionException e) {
 			LOGGER.severe("Error executing NMAP: " + e);
 		}
 
-		if (!nmap4j.hasError()) {
-			nmapRun = nmap4j.getResult();
-			System.out.println(nmap4j.getOutput());
+		if (!mNmap4j.hasError()) {
+			nmapRun = mNmap4j.getResult();
+			System.out.println(mNmap4j.getOutput());
 		} else {
-			LOGGER.severe(nmap4j.getExecutionResults().getErrors());
+			LOGGER.severe(mNmap4j.getExecutionResults().getErrors());
 		}
 
-		
 		return nmapRun;
 	}
 

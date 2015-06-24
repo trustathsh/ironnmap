@@ -56,7 +56,8 @@ import java.util.logging.Logger;
 
 public final class StrategyChainBuilder {
 
-	private static final Logger LOGGER = Logger.getLogger(StrategyChainBuilder.class.getName());
+	private static final Logger LOGGER = Logger
+			.getLogger(StrategyChainBuilder.class.getName());
 
 	/**
 	 * the List/Chain with the different strategy objects
@@ -76,27 +77,32 @@ public final class StrategyChainBuilder {
 	 * packagepath
 	 */
 
-	public static void init(Set<Entry<String, Object>> strategieNames, String packagePath) {
+	public static void init(Set<Entry<String, Object>> strategieNames,
+			String packagePath) {
 
 		LOGGER.info("looking for classes in package " + packagePath);
 
 		PublishNmapStrategy publisherStrategy;
-		Iterator<Entry<String, Object>> iteClassnames = strategieNames.iterator();
+		Iterator<Entry<String, Object>> iteClassnames = strategieNames
+				.iterator();
 		strategyChain = new ArrayList<PublishNmapStrategy>();
 
 		while (iteClassnames.hasNext()) {
 
 			Entry<String, Object> classname = iteClassnames.next();
-			LOGGER.info("found classString in Properties: " + classname.getKey().toString());
+			LOGGER.info("found classString in Properties: "
+					+ classname.getKey().toString());
 
 			if (classname.getValue().toString().equals("enabled")) {
 
-				publisherStrategy = createNewStrategie(packagePath + classname.getKey().toString());
+				publisherStrategy = createNewStrategie(packagePath
+						+ classname.getKey().toString());
 				if (publisherStrategy != null) {
 					strategyChain.add(publisherStrategy);
 				}
-			}else{
-				LOGGER.warning("Class is not enabled!: " + classname.getKey().toString());
+			} else {
+				LOGGER.warning("Class is not enabled!: "
+						+ classname.getKey().toString());
 			}
 		}
 	}
