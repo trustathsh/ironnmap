@@ -93,15 +93,17 @@ public abstract class PublishNmapStrategy {
 	 *            Arraylist of nmap flags for scanning hosts
 	 * 
 	 */
-	public String getNmapXmlString(String ipInclude, String ipExclude, String nmapFlags) {
+	public NMapRun getNmapXmlString(String ipInclude, String ipExclude, String nmapFlags) {
 
-		String xmlString = null;
 
+		NMapRun nmapRun = null;
+		
 		nmap4j.includeHosts(ipInclude);
-		if ((!ipExclude.equals("") && ipExclude != null) ) {
-			nmap4j.excludeHosts(ipExclude);
+		if(ipExclude != null){
+			if (!ipExclude.equals("") ) {
+				nmap4j.excludeHosts(ipExclude);
+			}
 		}
-
 		nmap4j.addFlags(nmapFlags);
 
 		try {
@@ -113,13 +115,14 @@ public abstract class PublishNmapStrategy {
 		}
 
 		if (!nmap4j.hasError()) {
-			NMapRun nmapRun = nmap4j.getResult();
-			xmlString = nmap4j.getOutput();
+			nmapRun = nmap4j.getResult();
+			System.out.println(nmap4j.getOutput());
 		} else {
 			LOGGER.severe(nmap4j.getExecutionResults().getErrors());
 		}
 
-		return xmlString;
+		
+		return nmapRun;
 	}
 
 }

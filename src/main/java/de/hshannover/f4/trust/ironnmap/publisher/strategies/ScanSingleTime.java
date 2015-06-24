@@ -38,6 +38,8 @@
  */
 package de.hshannover.f4.trust.ironnmap.publisher.strategies;
 
+import org.nmap4j.data.NMapRun;
+
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.ironnmap.publisher.PublishNmapStrategy;
 
@@ -66,9 +68,9 @@ public class ScanSingleTime extends PublishNmapStrategy {
 	@Override
 	public void publishNmapStrategy() {
 
-		String xmlString = getNmapXmlString(mIpInclude, mIpExclude, mNmapFlags);
-		if(xmlString != null){
-			System.out.println(xmlString);
+		NMapRun nmapResult = getNmapXmlString(mIpInclude, mIpExclude, mNmapFlags);
+		if(nmapResult != null){
+			System.out.println(nmapResult);
 		}
 		
 	}

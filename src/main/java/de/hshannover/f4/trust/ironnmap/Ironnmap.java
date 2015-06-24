@@ -48,7 +48,10 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import de.hshannover.f4.trust.ifmapj.exception.IfmapErrorResult;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
 import de.hshannover.f4.trust.ifmapj.exception.InitializationException;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
@@ -85,6 +88,8 @@ public final class Ironnmap {
 		try {
 			Configuration.init();
 
+			Namespace ns = parseArgs(args);
+
 			StrategyChainBuilder.init(Configuration.getRequestStrategiesClassnameMap(),
 					Configuration.strategiesPackagePath());
 
@@ -92,34 +97,79 @@ public final class Ironnmap {
 					Configuration.ifmapUrlCert(), Configuration.ifmapBasicUser(), Configuration.ifmapBasicPassword(),
 					Configuration.keyStorePath(), Configuration.keyStorePassword());
 
-			IfMap.getSsrc().newSession();
-			IfMap.getSsrc().purgePublisher();
+			// IfMap.getSsrc().newSession();
+			// IfMap.getSsrc().purgePublisher();
 
-			Timer timerA = new Timer();
-			timerA.schedule(new SsrcKeepaliveThread(), 1000, Configuration.ifmapKeepalive() * 1000 * 60);
+			if (ns.getString("execution").equals("singleTime")) {
+				String flagsWithMinus = "";
+				for (Object flag : ns.getList("flags"))
+					flagsWithMinus += "-" + flag.toString() + " ";
+				try {
+					ScanSingleTime oneTime = new ScanSingleTime(ns.getString("include"), ns.getString("exclude"),
+							flagsWithMinus);
+					oneTime.publishNmapStrategy();
+				} catch (PropertyException e) {
+					LOGGER.severe("Error initializing the ScanSingleTime strategy");
+				}
+			} else {
+				Timer timerA = new Timer();
+				timerA.schedule(new SsrcKeepaliveThread(), 1000, Configuration.ifmapKeepalive() * 1000 * 60);
+			}
 
 		} catch (InitializationException e1) {
 			LOGGER.severe("Error setting up the ssrc channel... System can not start!");
-		} catch (IfmapErrorResult e1) {
-			LOGGER.severe("Error setting up the ssrc channel session... System can not start!");
+			// } catch (IfmapErrorResult e1) {
+			// LOGGER.severe("Error setting up the ssrc channel session... System can not start!");
 		} catch (IfmapException e1) {
 			LOGGER.severe("Error setting up the ssrc channel session... System can not start!");
 		} catch (PropertyException e1) {
 			LOGGER.severe("Error setting up the configuration... System can not start!");
 		}
-		
-		
-		ScanSingleTime oneTime;
+
+	}
+
+	/**
+	 * parse Arguments
+	 * 
+	 */
+	public static Namespace parseArgs(String[] args) {
+
+		ArgumentParser parser = ArgumentParsers.newArgumentParser("use of ironnmap").defaultHelp(true)
+				.description("publish nmap informations about hosts");
+		parser.addArgument("execution").choices("singleTime", "multiTime").nargs("?").setDefault("multiTime")
+				.help("single commandline execution or subscribing for request for investigation");
+
+		Namespace ns = null;
 		try {
-			
-			oneTime = new ScanSingleTime("192.168.1.14","","-PN -O");
-			oneTime.publishNmapStrategy();
-		} catch (PropertyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String[] args1;
+			if (args.length > 0) {
+				args1 = new String[1];
+				args1[0] = args[0];
+			} else {
+				args1 = new String[0];
+			}
+			ns = parser.parseArgs(args1);
+			// singleTime -inc 192.168.1.14 -flags PN O
+		} catch (ArgumentParserException e) {
+			parser.handleError(e);
+			LOGGER.severe("Error parsing the commandline input... System can not start!");
+			System.exit(1);
 		}
-		
-		
+
+		if (ns.getString("execution").equals("singleTime")) {
+			parser.addArgument("-inc").dest("include").required(true).help("include Hosts for scan");
+			parser.addArgument("-exc").dest("exclude").help("exclude Hosts for scan");
+			parser.addArgument("-flags").dest("flags").required(true).nargs("*").help("nmap flags for scan without - before flag");
+		}
+		ns = null;
+		try {
+			ns = parser.parseArgs(args);
+		} catch (ArgumentParserException e) {
+			parser.handleError(e);
+			LOGGER.severe("Error parsing the commandline input... System can not start!");
+			System.exit(1);
+		}
+		return ns;
 	}
 
 	/**
