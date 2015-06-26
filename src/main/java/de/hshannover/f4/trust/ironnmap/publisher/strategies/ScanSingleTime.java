@@ -45,6 +45,7 @@ import java.util.logging.Logger;
 
 import org.nmap4j.data.NMapRun;
 import org.nmap4j.data.host.Address;
+import org.nmap4j.data.host.ports.Port;
 import org.nmap4j.data.nmaprun.Host;
 import org.w3c.dom.Document;
 
@@ -52,11 +53,13 @@ import de.hshannover.f4.trust.ifmapj.IfmapJ;
 import de.hshannover.f4.trust.ifmapj.channel.SSRC;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapErrorResult;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
+import de.hshannover.f4.trust.ifmapj.exception.MarshalException;
 import de.hshannover.f4.trust.ifmapj.identifier.Identifier;
 import de.hshannover.f4.trust.ifmapj.identifier.Identifiers;
 import de.hshannover.f4.trust.ifmapj.messages.MetadataLifetime;
 import de.hshannover.f4.trust.ifmapj.messages.PublishUpdate;
 import de.hshannover.f4.trust.ifmapj.messages.Requests;
+import de.hshannover.f4.trust.ifmapj.metadata.Cardinality;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.ironnmap.publisher.PublishNmapStrategy;
 
@@ -70,6 +73,9 @@ import de.hshannover.f4.trust.ironnmap.publisher.PublishNmapStrategy;
  */
 
 public class ScanSingleTime extends PublishNmapStrategy {
+
+	public static final String IRONNMAP_SIMU_METADATA_NS_URI = "http://simu-project.de/XMLSchema/1";
+	public static final String IRONNMAP_SIMU_METADATA_NS_PREFIX = "simu";
 
 	private static final Logger LOGGER = Logger.getLogger(ScanSingleTime.class
 			.getName());
@@ -105,16 +111,16 @@ public class ScanSingleTime extends PublishNmapStrategy {
 		NMapRun nmapResult = getNmapXmlString(mIpInclude, mIpExclude,
 				mNmapFlags);
 		if (nmapResult != null) {
-			publishAdressDiscover(ssrc, nmapResult);
+			publishHostDiscover(ssrc, nmapResult);
 		}
 	}
 
-	public void publishAdressDiscover(SSRC ssrc, NMapRun nmapResult) {
+	public void publishHostDiscover(SSRC ssrc, NMapRun nmapResult) {
 
 		try {
 			String thisDevice = "nmap_"
 					+ InetAddress.getLocalHost().getHostName();
-			Identifier ident1 = Identifiers.createDev(thisDevice);
+			Identifier dev = Identifiers.createDev(thisDevice);
 
 			for (Host host : nmapResult.getHosts()) {
 
@@ -123,29 +129,88 @@ public class ScanSingleTime extends PublishNmapStrategy {
 
 				for (Address adr : host.getAddresses()) {
 					if (adr.getAddrtype().equals("ipv4")) {
-						Identifier ident2 = Identifiers
-								.createIp4(adr.getAddr());
-						ips.add(ident2);
-						publishDiscover(ssrc, ident1, ident2);
+						Identifier ipv4 = Identifiers.createIp4(adr.getAddr());
+						ips.add(ipv4);
+						publishDiscover(ssrc, dev, ipv4);
+						publishHopCount(ssrc, dev, ipv4,
+								Long.toString(host.getDistance().getValue()));
+						for (Port port : host.getPorts().getPorts()) {
+							String extendedIdentifierXml = "<simu:service "
+									+ "administrative-domain=\""+ ipv4 +"\" "
+									+ "name=\""+host.getHostnames().getHostname()+"\" "
+									+ "type=\""+port.getService().getName()+"\" "
+									+ "port=\""+port.getPortId()+"\" "
+									+ "protocol=\""+port.getProtocol()+"\" "
+									+ "xmlns:simu=\""+IRONNMAP_SIMU_METADATA_NS_URI+"\" "
+									+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+									+ "xsi:schemaLocation=\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" "
+									+ "/>";
+							Identifier extIdentService = Identifiers.createExtendedIdentity(extendedIdentifierXml);
+							publishServiceIp(ssrc, extIdentService, ipv4);
+							publishServiceDiscoBy(ssrc, extIdentService, dev);
+						}
 					} else if (adr.getAddrtype().equals("ipv6")) {
-						Identifier ident2 = Identifiers.createIp6(adr.getAddr()
+						Identifier ipv6 = Identifiers.createIp6(adr.getAddr()
 								.toLowerCase());
-						ips.add(ident2);
-						publishDiscover(ssrc, ident1, ident2);
+						ips.add(ipv6);
+						publishDiscover(ssrc, dev, ipv6);
+						publishHopCount(ssrc, dev, ipv6,
+								Long.toString(host.getDistance().getValue()));
+						for (Port port : host.getPorts().getPorts()) {
+							String extendedIdentifierXml = "<simu:service "
+									+ "administrative-domain=\""+ ipv6 +"\" "
+									+ "name=\""+host.getHostnames().getHostname()+"\" "
+									+ "type=\""+port.getService().getName()+"\" "
+									+ "port=\""+port.getPortId()+"\" "
+									+ "protocol=\""+port.getProtocol()+"\" "
+									+ "xmlns:simu=\""+IRONNMAP_SIMU_METADATA_NS_URI+"\" "
+									+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+									+ "xsi:schemaLocation=\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" "
+									+ "/>";
+							Identifier extIdentService = Identifiers.createExtendedIdentity(extendedIdentifierXml);
+							publishServiceIp(ssrc, extIdentService, ipv6);
+							publishServiceDiscoBy(ssrc, extIdentService, dev);
+						}
 					} else if (adr.getAddrtype().equals("mac")) {
-						Identifier ident2 = Identifiers.createMac(adr.getAddr()
-								.toLowerCase());
-						mac = ident2;
-						publishDiscover(ssrc, ident1, ident2);
+						mac = Identifiers
+								.createMac(adr.getAddr().toLowerCase());
+						publishDiscover(ssrc, dev, mac);
 					}
 				}
 				for (Identifier ip : ips) {
 					publishIpMac(ssrc, ip, mac);
 				}
+				if (mac != null) {
+					String manufacturer = "";
+					String model = "";
+					String os = "";
+					String osVersion = "";
+					String deviceType = "";
+					if (host.getOs() != null) {
+						manufacturer = host.getOs().getOsClasses().get(0)
+								.getVendor();
+						os = host.getOs().getOsMatches().get(0).getName();
+						osVersion = host.getOs().getOsMatches().get(0)
+								.getName();
+						deviceType = host.getOs().getOsClasses().get(0)
+								.getType();
+					}
+					String discoveredTime = nmapResult.getRunStats()
+							.getFinished().getTimestr();
+					String discovererId = ssrc.getPublisherId();
+					String discoveryMethod = "nmap";
+					publishDevChar(ssrc, dev, mac, manufacturer, model, os,
+							osVersion, deviceType, discoveredTime,
+							discovererId, discoveryMethod);
+				}
+
 			}
 
 		} catch (UnknownHostException e) {
 			LOGGER.severe("Error lookup hostname: " + e);
+		} catch (MarshalException e) {
+			LOGGER.severe("Error building extended identifier from xml file: "
+					+ e);
 		}
 	}
 
@@ -170,9 +235,84 @@ public class ScanSingleTime extends PublishNmapStrategy {
 	private void publishDiscover(SSRC ssrc, Identifier ident1, Identifier ident2) {
 
 		try {
-
 			Document docMeta = IfmapJ.createStandardMetadataFactory()
 					.createDiscoveredBy();
+			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
+					ident2, docMeta, MetadataLifetime.forever);
+			ssrc.publish(Requests.createPublishReq(publishUpdate));
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
+	}
+
+	private void publishDevChar(SSRC ssrc, Identifier ident1,
+			Identifier ident2, String manufacturer, String model, String os,
+			String osVersion, String deviceType, String discoveredTime,
+			String discovererId, String discoveryMethod) {
+
+		try {
+			Document docMeta = IfmapJ.createStandardMetadataFactory()
+					.createDevChar(manufacturer, model, os, osVersion,
+							deviceType, discoveredTime, discovererId,
+							discoveryMethod);
+			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
+					ident2, docMeta, MetadataLifetime.forever);
+			ssrc.publish(Requests.createPublishReq(publishUpdate));
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
+	}
+
+	private void publishHopCount(SSRC ssrc, Identifier ident1,
+			Identifier ident2, String hopCount) {
+
+		try {
+			Document docMeta = IfmapJ.createStandardMetadataFactory().create(
+					"hop-count", IRONNMAP_SIMU_METADATA_NS_PREFIX,
+					IRONNMAP_SIMU_METADATA_NS_URI, Cardinality.singleValue,
+					"value", hopCount);
+			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
+					ident2, docMeta, MetadataLifetime.forever);
+			ssrc.publish(Requests.createPublishReq(publishUpdate));
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
+	}
+
+	private void publishServiceIp(SSRC ssrc, Identifier ident1,
+			Identifier ident2) {
+
+		try {
+			Document docMeta = IfmapJ.createStandardMetadataFactory().create(
+					"service-ip", IRONNMAP_SIMU_METADATA_NS_PREFIX,
+					IRONNMAP_SIMU_METADATA_NS_URI, Cardinality.singleValue);
+			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
+					ident2, docMeta, MetadataLifetime.forever);
+			ssrc.publish(Requests.createPublishReq(publishUpdate));
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
+	}
+
+	private void publishServiceDiscoBy(SSRC ssrc, Identifier ident1,
+			Identifier ident2) {
+
+		try {
+			Document docMeta = IfmapJ.createStandardMetadataFactory().create(
+					"service-discovered-by", IRONNMAP_SIMU_METADATA_NS_PREFIX,
+					IRONNMAP_SIMU_METADATA_NS_URI, Cardinality.singleValue);
 			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
 					ident2, docMeta, MetadataLifetime.forever);
 			ssrc.publish(Requests.createPublishReq(publishUpdate));
