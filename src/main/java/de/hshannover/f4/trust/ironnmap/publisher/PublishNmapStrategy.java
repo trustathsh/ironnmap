@@ -45,8 +45,17 @@ import org.nmap4j.Nmap4j;
 import org.nmap4j.core.nmap.NMapExecutionException;
 import org.nmap4j.core.nmap.NMapInitializationException;
 import org.nmap4j.data.NMapRun;
+import org.w3c.dom.Document;
 
+import de.hshannover.f4.trust.ifmapj.IfmapJ;
 import de.hshannover.f4.trust.ifmapj.channel.SSRC;
+import de.hshannover.f4.trust.ifmapj.exception.IfmapErrorResult;
+import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
+import de.hshannover.f4.trust.ifmapj.identifier.Identifier;
+import de.hshannover.f4.trust.ifmapj.messages.MetadataLifetime;
+import de.hshannover.f4.trust.ifmapj.messages.PublishUpdate;
+import de.hshannover.f4.trust.ifmapj.messages.Requests;
+import de.hshannover.f4.trust.ifmapj.metadata.Cardinality;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.ironnmap.Configuration;
 
@@ -60,7 +69,10 @@ import de.hshannover.f4.trust.ironnmap.Configuration;
  */
 
 public abstract class PublishNmapStrategy {
-
+	
+	protected static final String IRONNMAP_SIMU_METADATA_NS_URI = "http://simu-project.de/XMLSchema/1";
+	protected static final String IRONNMAP_SIMU_METADATA_NS_PREFIX = "simu";
+	
 	private static final Logger LOGGER = Logger
 			.getLogger(PublishNmapStrategy.class.getName());
 
@@ -122,6 +134,135 @@ public abstract class PublishNmapStrategy {
 		}
 
 		return nmapRun;
+	}
+	
+	
+	protected void publishIpMac(SSRC ssrc, Identifier ident1, Identifier ident2) {
+
+		try {
+			if (ident1 != null && ident2 != null) {
+				Document docMeta = IfmapJ.createStandardMetadataFactory()
+						.createIpMac();
+				PublishUpdate publishUpdate = Requests.createPublishUpdate(
+						ident1, ident2, docMeta, MetadataLifetime.forever);
+				ssrc.publish(Requests.createPublishReq(publishUpdate));
+			}
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
+	}
+
+	protected void publishDiscover(SSRC ssrc, Identifier ident1, Identifier ident2) {
+
+		try {
+			Document docMeta = IfmapJ.createStandardMetadataFactory()
+					.createDiscoveredBy();
+			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
+					ident2, docMeta, MetadataLifetime.forever);
+			ssrc.publish(Requests.createPublishReq(publishUpdate));
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
+	}
+
+	protected void publishDevChar(SSRC ssrc, Identifier ident1,
+			Identifier ident2, String manufacturer, String model, String os,
+			String osVersion, String deviceType, String discoveredTime,
+			String discovererId, String discoveryMethod) {
+
+		try {
+			Document docMeta = IfmapJ.createStandardMetadataFactory()
+					.createDevChar(manufacturer, model, os, osVersion,
+							deviceType, discoveredTime, discovererId,
+							discoveryMethod);
+			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
+					ident2, docMeta, MetadataLifetime.forever);
+			ssrc.publish(Requests.createPublishReq(publishUpdate));
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
+	}
+
+	protected void publishHopCount(SSRC ssrc, Identifier ident1,
+			Identifier ident2, String hopCount) {
+
+		try {
+			Document docMeta = IfmapJ.createStandardMetadataFactory().create(
+					"hop-count", IRONNMAP_SIMU_METADATA_NS_PREFIX,
+					IRONNMAP_SIMU_METADATA_NS_URI, Cardinality.singleValue,
+					"value", hopCount);
+			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
+					ident2, docMeta, MetadataLifetime.forever);
+			ssrc.publish(Requests.createPublishReq(publishUpdate));
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
+	}
+
+	protected void publishServiceIp(SSRC ssrc, Identifier ident1,
+			Identifier ident2) {
+
+		try {
+			Document docMeta = IfmapJ.createStandardMetadataFactory().create(
+					"service-ip", IRONNMAP_SIMU_METADATA_NS_PREFIX,
+					IRONNMAP_SIMU_METADATA_NS_URI, Cardinality.singleValue);
+			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
+					ident2, docMeta, MetadataLifetime.forever);
+			ssrc.publish(Requests.createPublishReq(publishUpdate));
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
+	}
+
+	protected void publishServiceDiscoBy(SSRC ssrc, Identifier ident1,
+			Identifier ident2) {
+
+		try {
+			Document docMeta = IfmapJ.createStandardMetadataFactory().create(
+					"service-discovered-by", IRONNMAP_SIMU_METADATA_NS_PREFIX,
+					IRONNMAP_SIMU_METADATA_NS_URI, Cardinality.singleValue);
+			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
+					ident2, docMeta, MetadataLifetime.forever);
+			ssrc.publish(Requests.createPublishReq(publishUpdate));
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
+	}
+	
+	protected void publishServiceImplementation(SSRC ssrc, Identifier ident1,
+			Identifier ident2) {
+
+		try {
+			Document docMeta = IfmapJ.createStandardMetadataFactory().create(
+					"service-implementation", IRONNMAP_SIMU_METADATA_NS_PREFIX,
+					IRONNMAP_SIMU_METADATA_NS_URI, Cardinality.singleValue);
+			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
+					ident2, docMeta, MetadataLifetime.forever);
+			ssrc.publish(Requests.createPublishReq(publishUpdate));
+		} catch (IfmapErrorResult e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		} catch (IfmapException e) {
+			LOGGER.severe("Error publishing update data: " + e);
+		}
+
 	}
 
 }

@@ -47,19 +47,10 @@ import org.nmap4j.data.NMapRun;
 import org.nmap4j.data.host.Address;
 import org.nmap4j.data.host.ports.Port;
 import org.nmap4j.data.nmaprun.Host;
-import org.w3c.dom.Document;
-
-import de.hshannover.f4.trust.ifmapj.IfmapJ;
 import de.hshannover.f4.trust.ifmapj.channel.SSRC;
-import de.hshannover.f4.trust.ifmapj.exception.IfmapErrorResult;
-import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
 import de.hshannover.f4.trust.ifmapj.exception.MarshalException;
 import de.hshannover.f4.trust.ifmapj.identifier.Identifier;
 import de.hshannover.f4.trust.ifmapj.identifier.Identifiers;
-import de.hshannover.f4.trust.ifmapj.messages.MetadataLifetime;
-import de.hshannover.f4.trust.ifmapj.messages.PublishUpdate;
-import de.hshannover.f4.trust.ifmapj.messages.Requests;
-import de.hshannover.f4.trust.ifmapj.metadata.Cardinality;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.ironnmap.publisher.PublishNmapStrategy;
 
@@ -73,9 +64,6 @@ import de.hshannover.f4.trust.ironnmap.publisher.PublishNmapStrategy;
  */
 
 public class ScanSingleTime extends PublishNmapStrategy {
-
-	public static final String IRONNMAP_SIMU_METADATA_NS_URI = "http://simu-project.de/XMLSchema/1";
-	public static final String IRONNMAP_SIMU_METADATA_NS_PREFIX = "simu";
 
 	private static final Logger LOGGER = Logger.getLogger(ScanSingleTime.class
 			.getName());
@@ -135,19 +123,19 @@ public class ScanSingleTime extends PublishNmapStrategy {
 						publishHopCount(ssrc, dev, ipv4,
 								Long.toString(host.getDistance().getValue()));
 						for (Port port : host.getPorts().getPorts()) {
-							String extendedIdentifierXml = "<simu:service "
-									+ "administrative-domain=\""+ ipv4 +"\" "
-									+ "name=\""+host.getHostnames().getHostname()+"\" "
-									+ "type=\""+port.getService().getName()+"\" "
-									+ "port=\""+port.getPortId()+"\" "
-									+ "protocol=\""+port.getProtocol()+"\" "
-									+ "xmlns:simu=\""+IRONNMAP_SIMU_METADATA_NS_URI+"\" "
-									+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-									+ "xsi:schemaLocation=\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" "
-									+ "/>";
-							Identifier extIdentService = Identifiers.createExtendedIdentity(extendedIdentifierXml);
+							Identifier extIdentService = Identifiers
+									.createExtendedIdentity(createSimuServiceXml(
+											ipv4, host, port));
 							publishServiceIp(ssrc, extIdentService, ipv4);
 							publishServiceDiscoBy(ssrc, extIdentService, dev);
+							String xmlSimuImpl = createSimuImplementationXml(
+									ipv4, port);
+							if (xmlSimuImpl != null) {
+								Identifier extIdentImplementation = Identifiers
+										.createExtendedIdentity(xmlSimuImpl);
+								publishServiceImplementation(ssrc,
+										extIdentService, extIdentImplementation);
+							}
 						}
 					} else if (adr.getAddrtype().equals("ipv6")) {
 						Identifier ipv6 = Identifiers.createIp6(adr.getAddr()
@@ -157,19 +145,19 @@ public class ScanSingleTime extends PublishNmapStrategy {
 						publishHopCount(ssrc, dev, ipv6,
 								Long.toString(host.getDistance().getValue()));
 						for (Port port : host.getPorts().getPorts()) {
-							String extendedIdentifierXml = "<simu:service "
-									+ "administrative-domain=\""+ ipv6 +"\" "
-									+ "name=\""+host.getHostnames().getHostname()+"\" "
-									+ "type=\""+port.getService().getName()+"\" "
-									+ "port=\""+port.getPortId()+"\" "
-									+ "protocol=\""+port.getProtocol()+"\" "
-									+ "xmlns:simu=\""+IRONNMAP_SIMU_METADATA_NS_URI+"\" "
-									+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-									+ "xsi:schemaLocation=\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" "
-									+ "/>";
-							Identifier extIdentService = Identifiers.createExtendedIdentity(extendedIdentifierXml);
+							Identifier extIdentService = Identifiers
+									.createExtendedIdentity(createSimuServiceXml(
+											ipv6, host, port));
 							publishServiceIp(ssrc, extIdentService, ipv6);
 							publishServiceDiscoBy(ssrc, extIdentService, dev);
+							String xmlSimuImpl = createSimuImplementationXml(
+									ipv6, port);
+							if (xmlSimuImpl != null) {
+								Identifier extIdentImplementation = Identifiers
+										.createExtendedIdentity(xmlSimuImpl);
+								publishServiceImplementation(ssrc,
+										extIdentService, extIdentImplementation);
+							}
 						}
 					} else if (adr.getAddrtype().equals("mac")) {
 						mac = Identifiers
@@ -214,114 +202,88 @@ public class ScanSingleTime extends PublishNmapStrategy {
 		}
 	}
 
-	private void publishIpMac(SSRC ssrc, Identifier ident1, Identifier ident2) {
+	private String createSimuServiceXml(Identifier ip, Host host, Port port) {
+		String extendedIdentifierXmlService = null;
+		String name = "";
+		String type = "";
 
-		try {
-			if (ident1 != null && ident2 != null) {
-				Document docMeta = IfmapJ.createStandardMetadataFactory()
-						.createIpMac();
-				PublishUpdate publishUpdate = Requests.createPublishUpdate(
-						ident1, ident2, docMeta, MetadataLifetime.forever);
-				ssrc.publish(Requests.createPublishReq(publishUpdate));
-			}
-		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
-		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
+		if (host.getHostnames().getHostname().getName() != null) {
+			name = host.getHostnames().getHostname().getName();
+		}
+		if (port.getService().getName() != null) {
+			type = port.getService().getName();
 		}
 
+		extendedIdentifierXmlService = "<simu:service "
+				+ "administrative-domain=\""
+				+ ip
+				+ "\" "
+				+ "name=\""
+				+ name
+				+ "\" "
+				+ "type=\""
+				+ type
+				+ "\" "
+				+ "port=\""
+				+ port.getPortId()
+				+ "\" "
+				+ "protocol=\""
+				+ port.getProtocol()
+				+ "\" "
+				+ "xmlns:simu=\""
+				+ IRONNMAP_SIMU_METADATA_NS_URI
+				+ "\" "
+				+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+				+ "xsi:schemaLocation=\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" "
+				+ "/>";
+
+		return extendedIdentifierXmlService;
 	}
 
-	private void publishDiscover(SSRC ssrc, Identifier ident1, Identifier ident2) {
+	private String createSimuImplementationXml(Identifier ip, Port port) {
+		String extendedIdentifierXmlImplementation = null;
+		String name = "";
+		String version = "";
+		String localVersion = "";
+		String platform = "";
 
-		try {
-			Document docMeta = IfmapJ.createStandardMetadataFactory()
-					.createDiscoveredBy();
-			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
-					ident2, docMeta, MetadataLifetime.forever);
-			ssrc.publish(Requests.createPublishReq(publishUpdate));
-		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
-		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
+		if (port.getService().getProduct() != null) {
+			name = port.getService().getProduct();
+		}
+		if (port.getService().getVersion() != null) {
+			version = port.getService().getVersion();
+		}
+		if (port.getService().getOsType() != null) {
+			platform = port.getService().getOsType();
 		}
 
-	}
-
-	private void publishDevChar(SSRC ssrc, Identifier ident1,
-			Identifier ident2, String manufacturer, String model, String os,
-			String osVersion, String deviceType, String discoveredTime,
-			String discovererId, String discoveryMethod) {
-
-		try {
-			Document docMeta = IfmapJ.createStandardMetadataFactory()
-					.createDevChar(manufacturer, model, os, osVersion,
-							deviceType, discoveredTime, discovererId,
-							discoveryMethod);
-			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
-					ident2, docMeta, MetadataLifetime.forever);
-			ssrc.publish(Requests.createPublishReq(publishUpdate));
-		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
-		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
+		if (!(port.getService().getProduct() == null
+				&& port.getService().getVersion() == null && port.getService()
+				.getOsType() == null)) {
+			extendedIdentifierXmlImplementation = "<simu:implementation "
+					+ "administrative-domain=\""
+					+ ip
+					+ "\" "
+					+ "name=\""
+					+ name
+					+ "\" "
+					+ "version=\""
+					+ version
+					+ "\" "
+					+ "local-version=\""
+					+ localVersion
+					+ "\" "
+					+ "platform=\""
+					+ platform
+					+ "\" "
+					+ "xmlns:simu=\""
+					+ IRONNMAP_SIMU_METADATA_NS_URI
+					+ "\" "
+					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+					+ "xsi:schemaLocation=\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" "
+					+ "/>";
 		}
-
-	}
-
-	private void publishHopCount(SSRC ssrc, Identifier ident1,
-			Identifier ident2, String hopCount) {
-
-		try {
-			Document docMeta = IfmapJ.createStandardMetadataFactory().create(
-					"hop-count", IRONNMAP_SIMU_METADATA_NS_PREFIX,
-					IRONNMAP_SIMU_METADATA_NS_URI, Cardinality.singleValue,
-					"value", hopCount);
-			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
-					ident2, docMeta, MetadataLifetime.forever);
-			ssrc.publish(Requests.createPublishReq(publishUpdate));
-		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
-		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
-		}
-
-	}
-
-	private void publishServiceIp(SSRC ssrc, Identifier ident1,
-			Identifier ident2) {
-
-		try {
-			Document docMeta = IfmapJ.createStandardMetadataFactory().create(
-					"service-ip", IRONNMAP_SIMU_METADATA_NS_PREFIX,
-					IRONNMAP_SIMU_METADATA_NS_URI, Cardinality.singleValue);
-			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
-					ident2, docMeta, MetadataLifetime.forever);
-			ssrc.publish(Requests.createPublishReq(publishUpdate));
-		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
-		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
-		}
-
-	}
-
-	private void publishServiceDiscoBy(SSRC ssrc, Identifier ident1,
-			Identifier ident2) {
-
-		try {
-			Document docMeta = IfmapJ.createStandardMetadataFactory().create(
-					"service-discovered-by", IRONNMAP_SIMU_METADATA_NS_PREFIX,
-					IRONNMAP_SIMU_METADATA_NS_URI, Cardinality.singleValue);
-			PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1,
-					ident2, docMeta, MetadataLifetime.forever);
-			ssrc.publish(Requests.createPublishReq(publishUpdate));
-		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
-		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
-		}
-
+		return extendedIdentifierXmlImplementation;
 	}
 
 }
