@@ -18,10 +18,10 @@
  * Email: trust@f4-i.fh-hannover.de
  * Website: http://trust.f4.hs-hannover.de
  * 
- * This file is part of ironnmap, version 0.0.1, implemented by the Trust@HsH
+ * This file is part of ironflow, version 0.0.1, implemented by the Trust@HsH
  * research group at the Hochschule Hannover.
  * %%
- * Copyright (C) 2015 - 2015 Trust@HsH
+ * Copyright (C) 2013 - 2014 Trust@HsH
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
  * limitations under the License.
  * #L%
  */
-package de.hshannover.f4.trust.ironnmap.publisher;
+package de.hshannover.f4.trust.ironnmap.subscriber;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -45,110 +45,117 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 /**
- * This class initialize the strategy chain to get the strategies for publishing nmap data. The config file defines
- * which strategies will be load by reflection Objects
- * 
+ * This class initialize the Subscriber chain to poll the Ifmap server for request for investigation metadata. In
+ * addition it holds the list of the subscriber strategy Objects
  * 
  * @author Marius Rohde
  * 
  */
 
-public final class StrategyChainBuilder {
+public final class SubscriberStrategyChainBuilder {
 
-	private static final Logger LOGGER = Logger.getLogger(StrategyChainBuilder.class.getName());
+	/**
+	 * This class initialise the subscriber chain to react on Request for investigation metadata publisched by a pdp. In
+	 * Addition it holds the list of the SubscriberStrategy Objects
+	 * 
+	 * @author Marius Rohde
+	 * 
+	 */
+
+	private static final Logger LOGGER = Logger.getLogger(SubscriberStrategyChainBuilder.class.getName());
 
 	/**
 	 * the List/Chain with the different strategy objects
 	 */
-	private static ArrayList<PublishNmapStrategy> strategyChain;
+	private static ArrayList<SubscriberNmapStrategy> subscriberChain;
 
 	/**
 	 * Death constructor for code convention -> final class because utility class
 	 * 
 	 */
-	private StrategyChainBuilder() {
+	private SubscriberStrategyChainBuilder() {
 	}
 
 	/**
-	 * The init method initiate the strategy chain and looks for the classes in packagepath
+	 * The init methode initiate the SubscriberChain and looks for the classes in packagepath
 	 */
 
 	public static void init(Set<Entry<String, Object>> strategieNames, String packagePath) {
 
-		LOGGER.info("looking for classes in package " + packagePath);
+		LOGGER.info("SubscriberChainBuilder : building subscriber chain ");
 
-		PublishNmapStrategy publisherStrategy;
+		SubscriberNmapStrategy subscriber;
+		subscriberChain = new ArrayList<SubscriberNmapStrategy>();
+
 		Iterator<Entry<String, Object>> iteClassnames = strategieNames.iterator();
-		strategyChain = new ArrayList<PublishNmapStrategy>();
 
 		while (iteClassnames.hasNext()) {
 
 			Entry<String, Object> classname = iteClassnames.next();
-			LOGGER.info("found classString in Properties: " + classname.getKey().toString());
+			LOGGER.info("SubscriberChainBuilder : found classString " + classname.getKey().toString());
 
 			if (classname.getValue().toString().equals("enabled")) {
 
-				publisherStrategy = createNewStrategie(packagePath + classname.getKey().toString());
-				if (publisherStrategy != null) {
-					strategyChain.add(publisherStrategy);
+				subscriber = createNewSubscriberStrategie(packagePath + classname.getKey().toString());
+				if (subscriber != null) {
+					subscriberChain.add(subscriber);
+				} else {
+					LOGGER.warning("Class is not enabled!: " + classname.getKey().toString());
 				}
-			} else {
-				LOGGER.warning("Class is not enabled!: " + classname.getKey().toString());
 			}
 		}
 	}
 
 	/**
-	 * This helper method creates a new StrategieObject
+	 * This helper methode creates a new SubscriberStrategieObject
 	 * 
 	 * @param className
-	 * @return Strategy object
+	 * @return SubscriberStrategy object
 	 */
 
-	private static PublishNmapStrategy createNewStrategie(String className) {
+	private static SubscriberNmapStrategy createNewSubscriberStrategie(String className) {
 
-		PublishNmapStrategy strategy = null;
+		SubscriberNmapStrategy subscriberStrategy = null;
 
 		try {
 			Class<?> cl = Class.forName(className);
-			LOGGER.info(cl.toString() + " instantiated");
-			if (cl.getSuperclass() == PublishNmapStrategy.class) {
-				strategy = (PublishNmapStrategy) cl.newInstance();
+			LOGGER.info("SubscriberChainBuilder : " + cl.toString() + " instantiated");
+			if (cl.getSuperclass() == SubscriberNmapStrategy.class) {
+				subscriberStrategy = (SubscriberNmapStrategy) cl.newInstance();
 			}
 
 		} catch (ClassNotFoundException e) {
-			LOGGER.severe("ClassNotFound");
+			LOGGER.severe("SubscriberChainBuilder: ClassNotFound");
 		} catch (InstantiationException e) {
-			LOGGER.severe("InstantiationException");
+			LOGGER.severe("SubscriberChainBuilder: InstantiationException");
 		} catch (IllegalAccessException e) {
-			LOGGER.severe("IllegalAccessException");
+			LOGGER.severe("SubscriberChainBuilder: IllegalAccessException");
 		}
 
-		return strategy;
+		return subscriberStrategy;
 	}
 
 	/**
-	 * The Size of the Chain
+	 * The Size of the requestChain
 	 * 
 	 * @return the size
 	 */
 
 	public static int getSize() {
 
-		return strategyChain.size();
+		return subscriberChain.size();
 	}
 
 	/**
-	 * This method delivers a StrategyObject stored in the chain
+	 * This method delivers a SubscriberStrategyObject stored in the chain
 	 * 
 	 * @param index
 	 *            the index of the element
 	 * @return an Element
 	 */
 
-	public static PublishNmapStrategy getElementAt(int index) {
+	public static SubscriberNmapStrategy getElementAt(int index) {
 
-		return strategyChain.get(index);
+		return subscriberChain.get(index);
 	}
-
 }

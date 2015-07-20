@@ -21,11 +21,20 @@ ifmap:
             password: ironnmap
         nmap:
             path: /usr
-        # Name of the package where publish strategy classes have to lie
-        publishstrategiespath: de.hshannover.f4.trust.ironnmap.publisher.strategies.
-        # Name to the list of classes which implements the nmap Strategies
-        publishstrategies:
-            blub: disabled
+        publisher:
+            # Name of the package where publish strategy classes have to lie
+            publishstrategiespath: de.hshannover.f4.trust.ironnmap.publisher.strategies.
+            # Name to the list of classes which implements the nmap strategies
+            publishstrategies:
+                nothing: disabled
+        subscriber:
+            # the name of the PDP
+            subscriptionroot: DHCP
+            # Name of the package where subscriber strategy classes have to lie
+            subscriberstrategiespath: de.hshannover.f4.trust.ironnmap.subscriber.strategies.
+            # Name to the list of classes which implements the nmap subscriber strategies
+            subscriberstrategies:
+                SubscriberOsNmapScanStrategy: enabled
 
 
 

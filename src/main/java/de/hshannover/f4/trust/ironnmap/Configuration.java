@@ -48,8 +48,8 @@ import de.hshannover.f4.trust.ironcommon.properties.Properties;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 
 /**
- * This class loads the configuration file from the file system and provides a
- * set of constants and a getter method to access these values.
+ * This class loads the configuration file from the file system and provides a set of constants and a getter method to
+ * access these values.
  * 
  * @author Marius Rohde
  * 
@@ -80,21 +80,23 @@ public final class Configuration {
 	private static final String KEYSTORE_PASSWORD = "ifmap.client.keystore.password";
 	private static final String NMAP_PATH = "ifmap.client.nmap.path";
 
-	private static final String STRATEGIES_PACKAGE_PATH = "ifmap.client.publishstrategiespath";
-	private static final String STRATEGIES_CLASSNAMES_FILENAME = "ifmap.client.publishstrategies";
+	private static final String STRATEGIES_PACKAGE_PATH = "ifmap.client.publisher.publishstrategiespath";
+	private static final String STRATEGIES_CLASSNAMES_FILENAME = "ifmap.client.publisher.publishstrategies";
+
+	private static final String SUBSCRIBER_SUBSCRIPTIONROOT = "ifmap.client.subscriber.subscriptionroot";
+	private static final String SUBSCRIBER_STRATEGIES_PACKAGE_PATH = "ifmap.client.subscriber.subscriberstrategiespath";
+	private static final String SUBSCRIBER_STRATEGIES_CLASSNAMES_FILENAME = "ifmap.client.subscriber.subscriberstrategies";
 
 	// end configuration parameter ---------------------------------------------
 
 	/**
-	 * Death constructor for code convention -> final class because utility
-	 * class
+	 * Death constructor for code convention -> final class because utility class
 	 */
 	private Configuration() {
 	}
 
 	/**
-	 * Loads the configuration file. Every time this method is called the file
-	 * is read again.
+	 * Loads the configuration file. Every time this method is called the file is read again.
 	 * 
 	 * @throws PropertyException
 	 *             To signalise a failure while opening to calling classes
@@ -117,6 +119,19 @@ public final class Configuration {
 	public static Set<Entry<String, Object>> getRequestStrategiesClassnameMap() throws PropertyException {
 
 		return ((Map<String, Object>) mProperties.getValue(STRATEGIES_CLASSNAMES_FILENAME)).entrySet();
+	}
+
+	/**
+	 * Getter for the subscriber strategies classname map.
+	 * 
+	 * @return the set of classnames for subscriber strategies
+	 * @throws PropertyException
+	 *             what the name says
+	 */
+	@SuppressWarnings("unchecked")
+	public static Set<Entry<String, Object>> getSubscriberStrategiesClassnameMap() throws PropertyException {
+
+		return ((Map<String, Object>) mProperties.getValue(SUBSCRIBER_STRATEGIES_CLASSNAMES_FILENAME)).entrySet();
 	}
 
 	/**
@@ -198,17 +213,6 @@ public final class Configuration {
 	}
 
 	/**
-	 * Getter for the request strategies ClassnamePropertiesFilename property.
-	 * 
-	 * @return property string
-	 * @throws PropertyException
-	 *             what the name says
-	 */
-	public static String irongenlogRequestStrategiesClassnamePropertiesFilename() throws PropertyException {
-		return mProperties.getString(STRATEGIES_CLASSNAMES_FILENAME);
-	}
-
-	/**
 	 * Getter for the ifmapKeepalive property.
 	 * 
 	 * @return property integer
@@ -229,7 +233,29 @@ public final class Configuration {
 	public static String strategiesPackagePath() throws PropertyException {
 		return mProperties.getString(STRATEGIES_PACKAGE_PATH);
 	}
-	
+
+	/**
+	 * Getter for the subscriber pdp.
+	 * 
+	 * @return property pdp
+	 * @throws PropertyException
+	 *             what the name says
+	 */
+	public static String subscriberSubscriptionRoot() throws PropertyException {
+		return mProperties.getString(SUBSCRIBER_SUBSCRIPTIONROOT);
+	}
+
+	/**
+	 * Getter for the subscriber strategies package path property.
+	 * 
+	 * @return property path
+	 * @throws PropertyException
+	 *             what the name says
+	 */
+	public static String subscriberStrategiesPackagePath() throws PropertyException {
+		return mProperties.getString(SUBSCRIBER_STRATEGIES_PACKAGE_PATH);
+	}
+
 	/**
 	 * Getter for the nmapPath property.
 	 * 

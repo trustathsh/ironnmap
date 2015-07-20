@@ -58,12 +58,13 @@ import de.hshannover.f4.trust.ifmapj.exception.InitializationException;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.ironnmap.publisher.StrategyChainBuilder;
 import de.hshannover.f4.trust.ironnmap.publisher.strategies.ScanSingleTime;
+import de.hshannover.f4.trust.ironnmap.subscriber.SubscriberStrategyChainBuilder;
+import de.hshannover.f4.trust.ironnmap.subscriber.SubscriberThread;
 import de.hshannover.f4.trust.ironnmap.utilities.IfMap;
 import de.hshannover.f4.trust.ironnmap.utilities.SsrcKeepaliveThread;
 
 /**
- * This class starts the application It creates the threads for publishing,
- * keepalives. It setups logging too
+ * This class starts the application It creates the threads for publishing, keepalives. It setups logging too
  * 
  * @author Marius Rohde
  * 
@@ -71,14 +72,12 @@ import de.hshannover.f4.trust.ironnmap.utilities.SsrcKeepaliveThread;
 
 public final class Ironnmap {
 
-	private static final Logger LOGGER = Logger.getLogger(Ironnmap.class
-			.getName());
+	private static final Logger LOGGER = Logger.getLogger(Ironnmap.class.getName());
 
 	private static final String LOGGING_CONFIG_FILE = "/logging.properties";
 
 	/**
-	 * Death constructor for code convention -> final class because utility
-	 * class
+	 * Death constructor for code convention -> final class because utility class
 	 */
 	private Ironnmap() {
 	}
@@ -94,35 +93,31 @@ public final class Ironnmap {
 		try {
 			Configuration.init();
 
-			// singleTime -inc 192.168.1.14 -flags PN O
+			// singleTime -inc 192.168.1.14 -flags sV PN O
 			Namespace ns = parseArgs(args);
 
-			StrategyChainBuilder.init(
-					Configuration.getRequestStrategiesClassnameMap(),
+			StrategyChainBuilder.init(Configuration.getRequestStrategiesClassnameMap(),
 					Configuration.strategiesPackagePath());
+			
+			SubscriberStrategyChainBuilder.init(Configuration.getSubscriberStrategiesClassnameMap(),
+					Configuration.subscriberStrategiesPackagePath());
 
-			IfMap.initSsrc(Configuration.ifmapAuthMethod(),
-					Configuration.ifmapUrlBasic(),
-					Configuration.ifmapUrlCert(),
-					Configuration.ifmapBasicUser(),
-					Configuration.ifmapBasicPassword(),
-					Configuration.keyStorePath(),
-					Configuration.keyStorePassword());
+			IfMap.initSsrc(Configuration.ifmapAuthMethod(), Configuration.ifmapUrlBasic(),
+					Configuration.ifmapUrlCert(), Configuration.ifmapBasicUser(), Configuration.ifmapBasicPassword(),
+					Configuration.keyStorePath(), Configuration.keyStorePassword());
 
 			IfMap.getSsrc().newSession();
 			IfMap.getSsrc().purgePublisher();
 
 			Timer timerA = new Timer();
-			timerA.schedule(new SsrcKeepaliveThread(), 1000,
-					Configuration.ifmapKeepalive() * 1000 * 60);
+			timerA.schedule(new SsrcKeepaliveThread(), 1000, Configuration.ifmapKeepalive() * 1000 * 60);
 
 			if (ns.getString("execution").equals("singleTime")) {
 				String flagsWithMinus = "";
 				for (Object flag : ns.getList("flags"))
 					flagsWithMinus += "-" + flag.toString() + " ";
 				try {
-					ScanSingleTime oneTime = new ScanSingleTime(
-							ns.getString("include"), ns.getString("exclude"),
+					ScanSingleTime oneTime = new ScanSingleTime(ns.getString("include"), ns.getString("exclude"),
 							flagsWithMinus);
 					oneTime.publishNmapStrategy(IfMap.getSsrc());
 				} catch (PropertyException e) {
@@ -130,7 +125,9 @@ public final class Ironnmap {
 				}
 				timerA.cancel();
 			} else {
-				System.out.println("Subscriber");
+				new SubscriberThread().start();
+				LOGGER.info("Subscriber startet.");
+				//TODO super clean shutdown
 			}
 
 		} catch (InitializationException e1) {
@@ -152,13 +149,9 @@ public final class Ironnmap {
 	 */
 	public static Namespace parseArgs(String[] args) {
 
-		ArgumentParser parser = ArgumentParsers
-				.newArgumentParser("use of ironnmap").defaultHelp(true)
+		ArgumentParser parser = ArgumentParsers.newArgumentParser("use of ironnmap").defaultHelp(true)
 				.description("publish nmap informations about hosts");
-		parser.addArgument("execution")
-				.choices("singleTime", "multiTime")
-				.nargs("?")
-				.setDefault("multiTime")
+		parser.addArgument("execution").choices("singleTime", "multiTime").nargs("?").setDefault("multiTime")
 				.help("single commandline execution or subscribing for request for investigation");
 
 		Namespace ns = null;
@@ -178,12 +171,9 @@ public final class Ironnmap {
 		}
 
 		if (ns.getString("execution").equals("singleTime")) {
-			parser.addArgument("-inc").dest("include").required(true)
-					.help("include Hosts for scan");
-			parser.addArgument("-exc").dest("exclude")
-					.help("exclude Hosts for scan");
-			parser.addArgument("-flags").dest("flags").required(true)
-					.nargs("*")
+			parser.addArgument("-inc").dest("include").required(true).help("include Hosts for scan");
+			parser.addArgument("-exc").dest("exclude").help("exclude Hosts for scan");
+			parser.addArgument("-flags").dest("flags").required(true).nargs("*")
 					.help("nmap flags for scan without - before flag");
 		}
 		ns = null;
@@ -204,8 +194,7 @@ public final class Ironnmap {
 
 	public static void setupLogging() {
 
-		InputStream in = Ironnmap.class
-				.getResourceAsStream(LOGGING_CONFIG_FILE);
+		InputStream in = Ironnmap.class.getResourceAsStream(LOGGING_CONFIG_FILE);
 
 		try {
 			LogManager.getLogManager().readConfiguration(in);
@@ -216,16 +205,14 @@ public final class Ironnmap {
 			Logger.getLogger("").addHandler(handler);
 			Logger.getLogger("").setLevel(Level.INFO);
 
-			LOGGER.warning("could not read " + LOGGING_CONFIG_FILE
-					+ ", using defaults");
+			LOGGER.warning("could not read " + LOGGING_CONFIG_FILE + ", using defaults");
 
 		} finally {
 			if (in != null) {
 				try {
 					in.close();
 				} catch (IOException e) {
-					LOGGER.warning("could not close log config inputstream: "
-							+ e);
+					LOGGER.warning("could not close log config inputstream: " + e);
 				}
 			}
 		}
