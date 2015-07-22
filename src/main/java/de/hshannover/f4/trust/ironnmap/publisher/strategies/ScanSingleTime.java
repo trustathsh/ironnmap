@@ -127,7 +127,9 @@ public class ScanSingleTime extends PublishNmapStrategy {
 						Identifier ipv4 = Identifiers.createIp4(adr.getAddr());
 						ips.add(ipv4);
 						publishDiscover(ssrc, dev, ipv4);
-						publishHopCount(ssrc, dev, ipv4, Long.toString(host.getDistance().getValue()));
+						if (host.getDistance() != null) {
+							publishHopCount(ssrc, dev, ipv4, Long.toString(host.getDistance().getValue()));
+						}
 						// ports and services
 						for (Port port : host.getPorts().getPorts()) {
 							Identifier extIdentService = Identifiers.createExtendedIdentity(createSimuServiceXml(ipv4,
@@ -157,7 +159,9 @@ public class ScanSingleTime extends PublishNmapStrategy {
 						Identifier ipv6 = Identifiers.createIp6(adr.getAddr().toLowerCase());
 						ips.add(ipv6);
 						publishDiscover(ssrc, dev, ipv6);
-						publishHopCount(ssrc, dev, ipv6, Long.toString(host.getDistance().getValue()));
+						if (host.getDistance() != null) {
+							publishHopCount(ssrc, dev, ipv6, Long.toString(host.getDistance().getValue()));
+						}
 						// ports and services
 						for (Port port : host.getPorts().getPorts()) {
 							Identifier extIdentService = Identifiers.createExtendedIdentity(createSimuServiceXml(ipv6,
@@ -214,7 +218,7 @@ public class ScanSingleTime extends PublishNmapStrategy {
 				}
 
 			}
-
+			LOGGER.info("Nmap data published");
 		} catch (UnknownHostException e) {
 			LOGGER.severe("Error lookup hostname: " + e);
 		} catch (MarshalException e) {

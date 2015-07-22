@@ -213,6 +213,7 @@ public abstract class PublishNmapStrategy {
 	 * @param discoveryMethod
 	 *            discoveryMethod
 	 */
+	@SuppressWarnings("checkstyle:parameternumber")
 	protected void publishDevChar(SSRC ssrc, Identifier ident1, Identifier ident2, String manufacturer, String model,
 			String os, String osVersion, String deviceType, String discoveredTime, String discovererId,
 			String discoveryMethod) {
@@ -362,28 +363,11 @@ public abstract class PublishNmapStrategy {
 				type = port.getService().getName();
 			}
 
-			extendedIdentifierXmlService = "<simu:service "
-					+ "administrative-domain=\""
-					+ ip
-					+ "\" "
-					+ "name=\""
-					+ name
-					+ "\" "
-					+ "type=\""
-					+ type
-					+ "\" "
-					+ "port=\""
-					+ port.getPortId()
-					+ "\" "
-					+ "protocol=\""
-					+ port.getProtocol()
-					+ "\" "
-					+ "xmlns:simu=\""
-					+ IRONNMAP_SIMU_METADATA_NS_URI
-					+ "\" "
-					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-					+ "xsi:schemaLocation=\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" "
-					+ "/>";
+			extendedIdentifierXmlService = "<simu:service " + "administrative-domain=\"" + ip + "\" " + "name=\""
+					+ name + "\" " + "type=\"" + type + "\" " + "port=\"" + port.getPortId() + "\" " + "protocol=\""
+					+ port.getProtocol() + "\" " + "xmlns:simu=\"" + IRONNMAP_SIMU_METADATA_NS_URI + "\" "
+					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + "xsi:schemaLocation="
+					+ "\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" " + "/>";
 		}
 		return extendedIdentifierXmlService;
 	}
@@ -407,26 +391,11 @@ public abstract class PublishNmapStrategy {
 				name = host.getHostnames().getHostname().getName();
 			}
 
-			extendedIdentifierXmlService = "<simu:service "
-					+ "administrative-domain=\""
-					+ ip
-					+ "\" "
-					+ "name=\""
-					+ name
-					+ "\" "
-					+ "type=\""
-					+ type
-					+ "\" "
-					+ "port=\""
-					+ "\" "
-					+ "protocol=\""
-					+ "\" "
-					+ "xmlns:simu=\""
-					+ IRONNMAP_SIMU_METADATA_NS_URI
-					+ "\" "
-					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-					+ "xsi:schemaLocation=\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" "
-					+ "/>";
+			extendedIdentifierXmlService = "<simu:service " + "administrative-domain=\"" + ip + "\" " + "name=\""
+					+ name + "\" " + "type=\"" + type + "\" " + "port=\"" + "\" " + "protocol=\"" + "\" "
+					+ "xmlns:simu=\"" + IRONNMAP_SIMU_METADATA_NS_URI + "\" "
+					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + "xsi:schemaLocation="
+					+ "\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" " + "/>";
 		}
 		return extendedIdentifierXmlService;
 	}
@@ -460,28 +429,12 @@ public abstract class PublishNmapStrategy {
 
 			if (!(port.getService().getProduct() == null && port.getService().getVersion() == null && port
 					.getService().getOsType() == null)) {
-				extendedIdentifierXmlImplementation = "<simu:implementation "
-						+ "administrative-domain=\""
-						+ ip
-						+ "\" "
-						+ "name=\""
-						+ name
-						+ "\" "
-						+ "version=\""
-						+ version
-						+ "\" "
-						+ "local-version=\""
-						+ localVersion
-						+ "\" "
-						+ "platform=\""
-						+ platform
-						+ "\" "
-						+ "xmlns:simu=\""
-						+ IRONNMAP_SIMU_METADATA_NS_URI
-						+ "\" "
-						+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-						+ "xsi:schemaLocation=\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" "
-						+ "/>";
+				extendedIdentifierXmlImplementation = "<simu:implementation " + "administrative-domain=\"" + ip
+						+ "\" " + "name=\"" + name + "\" " + "version=\"" + version + "\" " + "local-version=\""
+						+ localVersion + "\" " + "platform=\"" + platform + "\" " + "xmlns:simu=\""
+						+ IRONNMAP_SIMU_METADATA_NS_URI + "\" "
+						+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + "xsi:schemaLocation="
+						+ "\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" " + "/>";
 			}
 		}
 		return extendedIdentifierXmlImplementation;
@@ -504,34 +457,19 @@ public abstract class PublishNmapStrategy {
 		String platform = "";
 
 		if (ip instanceof IpAddress) {
-			if (host.getOs().getOsMatches() != null) {
-				name = host.getOs().getOsMatches().get(0).getName();
-				platform = host.getOs().getOsClasses().get(0).getVendor();
-				extendedIdentifierXmlImplementation = "<simu:implementation "
-						+ "administrative-domain=\""
-						+ ip
-						+ "\" "
-						+ "name=\""
-						+ name
-						+ "\" "
-						+ "version=\""
-						+ version
-						+ "\" "
-						+ "local-version=\""
-						+ localVersion
-						+ "\" "
-						+ "platform=\""
-						+ platform
-						+ "\" "
-						+ "xmlns:simu=\""
-						+ IRONNMAP_SIMU_METADATA_NS_URI
-						+ "\" "
-						+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-						+ "xsi:schemaLocation=\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" "
-						+ "/>";
+			if (host.getOs() != null) {
+				if (host.getOs().getOsMatches() != null) {
+					name = host.getOs().getOsMatches().get(0).getName();
+					platform = host.getOs().getOsClasses().get(0).getVendor();
+					extendedIdentifierXmlImplementation = "<simu:implementation " + "administrative-domain=\"" + ip
+							+ "\" " + "name=\"" + name + "\" " + "version=\"" + version + "\" " + "local-version=\""
+							+ localVersion + "\" " + "platform=\"" + platform + "\" " + "xmlns:simu=\""
+							+ IRONNMAP_SIMU_METADATA_NS_URI + "\" "
+							+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + "xsi:schemaLocation="
+							+ "\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" " + "/>";
+				}
 			}
 		}
 		return extendedIdentifierXmlImplementation;
 	}
-
 }

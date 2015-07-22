@@ -11,5 +11,6 @@
   </fileset>
   <filter name="FilesFromPackage" enabled="true">
     <filter-data value="target/"/>
+    <filter-data value="src/main/templates/"/>
   </filter>
 </fileset-config>

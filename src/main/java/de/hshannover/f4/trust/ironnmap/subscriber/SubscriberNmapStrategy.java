@@ -18,10 +18,10 @@
  * Email: trust@f4-i.fh-hannover.de
  * Website: http://trust.f4.hs-hannover.de
  * 
- * This file is part of ironflow, version 0.0.1, implemented by the Trust@HsH
+ * This file is part of ironnmap, version 0.0.1, implemented by the Trust@HsH
  * research group at the Hochschule Hannover.
  * %%
- * Copyright (C) 2013 - 2014 Trust@HsH
+ * Copyright (C) 2015 - 2015 Trust@HsH
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,6 @@ import de.hshannover.f4.trust.ifmapj.identifier.Device;
 import de.hshannover.f4.trust.ifmapj.identifier.Identifier;
 import de.hshannover.f4.trust.ifmapj.identifier.Identifiers;
 import de.hshannover.f4.trust.ifmapj.identifier.IpAddress;
-import de.hshannover.f4.trust.ifmapj.identifier.MacAddress;
 import de.hshannover.f4.trust.ifmapj.messages.Requests;
 import de.hshannover.f4.trust.ifmapj.messages.ResultItem;
 import de.hshannover.f4.trust.ifmapj.messages.SearchResult;
@@ -114,11 +113,9 @@ public abstract class SubscriberNmapStrategy {
 			List<ResultItem> cleanedResultItems = cleanEmptySearchResult(searchResult);
 
 			for (ResultItem resultItem : cleanedResultItems) {
-				if (resultItem.getIdentifier1() instanceof IpAddress
-						|| resultItem.getIdentifier1() instanceof MacAddress) {
+				if (resultItem.getIdentifier1() instanceof IpAddress) {
 					scanWithStrategy(ssrc, resultItem.getIdentifier1());
-				} else if (resultItem.getIdentifier2() instanceof IpAddress
-						|| resultItem.getIdentifier2() instanceof MacAddress) {
+				} else if (resultItem.getIdentifier2() instanceof IpAddress) {
 					scanWithStrategy(ssrc, resultItem.getIdentifier2());
 				}
 			}
@@ -160,8 +157,8 @@ public abstract class SubscriberNmapStrategy {
 	/**
 	 * Method to execute the nmap scan
 	 * 
-	 * @param item
-	 *            cleaned resultitem
+	 * @param ipOrMac
+	 *            resultitem Identifier mac or ip
 	 * 
 	 */
 	protected abstract void scanWithStrategy(SSRC ssrc, Identifier ipOrMac);

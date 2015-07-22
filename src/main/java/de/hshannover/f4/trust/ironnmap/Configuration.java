@@ -85,7 +85,8 @@ public final class Configuration {
 
 	private static final String SUBSCRIBER_SUBSCRIPTIONROOT = "ifmap.client.subscriber.subscriptionroot";
 	private static final String SUBSCRIBER_STRATEGIES_PACKAGE_PATH = "ifmap.client.subscriber.subscriberstrategiespath";
-	private static final String SUBSCRIBER_STRATEGIES_CLASSNAMES_FILENAME = "ifmap.client.subscriber.subscriberstrategies";
+	private static final String SUBSCRIBER_STRATEGIES_CLASSNAMES_FILENAME = "ifmap.client.subscriber."
+			+ "subscriberstrategies";
 
 	// end configuration parameter ---------------------------------------------
 

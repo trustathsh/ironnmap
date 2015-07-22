@@ -48,8 +48,7 @@ import de.hshannover.f4.trust.ifmapj.config.CertAuthConfig;
 import de.hshannover.f4.trust.ifmapj.exception.InitializationException;
 
 /**
- * A ifmap class to initiate the ifmap server connection and to get the ssrc and
- * arc channel
+ * A ifmap class to initiate the ifmap server connection and to get the ssrc and arc channel
  */
 public final class IfMap {
 
@@ -61,8 +60,7 @@ public final class IfMap {
 	private static final Logger LOGGER = Logger.getLogger(IfMap.class.getName());
 
 	/**
-	 * Death constructor for code convention -> final class because utility
-	 * class
+	 * Death constructor for code convention -> final class because utility class
 	 */
 	private IfMap() {
 	}
@@ -100,7 +98,7 @@ public final class IfMap {
 			throw e;
 		}
 		LOGGER.info("SSRC initialized");
-		
+
 		return ifmapSsrc;
 	}
 

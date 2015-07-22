@@ -58,7 +58,6 @@
 				</configuration>
 			</plugin>
 
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
@@ -66,7 +65,7 @@
 				<configuration>
 					<propertyExpansion>headerfile=${project.basedir}/src/license/dummy/Dummy.java</propertyExpansion>
 					<configLocation>https://raw.githubusercontent.com/trustathsh/ironcommon/master/src/main/documents/trustAtHsHCheckstylePolicy.xml</configLocation>
-					<excludes>target/</excludes>
+					<excludes>target/,src/main/templates/</excludes>
 				</configuration>
 			</plugin>
 

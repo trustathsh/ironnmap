@@ -93,12 +93,12 @@ public final class Ironnmap {
 		try {
 			Configuration.init();
 
-			// singleTime -inc 192.168.1.14 -flags sV PN O
+			// singleTime -inc 192.168.1.14 flags -sV -PN -O
 			Namespace ns = parseArgs(args);
 
 			StrategyChainBuilder.init(Configuration.getRequestStrategiesClassnameMap(),
 					Configuration.strategiesPackagePath());
-			
+
 			SubscriberStrategyChainBuilder.init(Configuration.getSubscriberStrategiesClassnameMap(),
 					Configuration.subscriberStrategiesPackagePath());
 
@@ -107,15 +107,18 @@ public final class Ironnmap {
 					Configuration.keyStorePath(), Configuration.keyStorePassword());
 
 			IfMap.getSsrc().newSession();
-			IfMap.getSsrc().purgePublisher();
+
+			if (ns.getString("purging").equals("purge")) {
+				IfMap.getSsrc().purgePublisher();
+			}
 
 			Timer timerA = new Timer();
 			timerA.schedule(new SsrcKeepaliveThread(), 1000, Configuration.ifmapKeepalive() * 1000 * 60);
 
 			if (ns.getString("execution").equals("singleTime")) {
 				String flagsWithMinus = "";
-				for (Object flag : ns.getList("flags"))
-					flagsWithMinus += "-" + flag.toString() + " ";
+				for (Object flag : ns.getList("flags").subList(1, ns.getList("flags").size()))
+					flagsWithMinus += "" + flag.toString() + " ";
 				try {
 					ScanSingleTime oneTime = new ScanSingleTime(ns.getString("include"), ns.getString("exclude"),
 							flagsWithMinus);
@@ -127,7 +130,7 @@ public final class Ironnmap {
 			} else {
 				new SubscriberThread().start();
 				LOGGER.info("Subscriber startet.");
-				//TODO super clean shutdown
+				// TODO super clean shutdown
 			}
 
 		} catch (InitializationException e1) {
@@ -153,6 +156,8 @@ public final class Ironnmap {
 				.description("publish nmap informations about hosts");
 		parser.addArgument("execution").choices("singleTime", "multiTime").nargs("?").setDefault("multiTime")
 				.help("single commandline execution or subscribing for request for investigation");
+		parser.addArgument("-purgePublisher").dest("purging").choices("purge", "nopurge").nargs("?").setConst("purge").setDefault("nopurge")
+				.help("purge previous published data");
 
 		Namespace ns = null;
 		try {
@@ -173,8 +178,8 @@ public final class Ironnmap {
 		if (ns.getString("execution").equals("singleTime")) {
 			parser.addArgument("-inc").dest("include").required(true).help("include Hosts for scan");
 			parser.addArgument("-exc").dest("exclude").help("exclude Hosts for scan");
-			parser.addArgument("-flags").dest("flags").required(true).nargs("*")
-					.help("nmap flags for scan without - before flag");
+			parser.addArgument("flags").dest("flags").required(true).nargs("*")
+					.help("use -- before nmap flags to use - with flags");
 		}
 		ns = null;
 		try {
