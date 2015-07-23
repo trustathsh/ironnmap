@@ -89,7 +89,7 @@ or execute ironnmap with java -jar ironnmap with following parameters.
 singleTime = single time scan (only works with cli)  #Default: multitime (only works with subscriber mode)  
 flags -- = all flags of nmap are possible(not all are supported)  
 
-an example could look like:
+an example could look like:  
     singleTime -inc 192.168.1.13 -purgePublisher purge  flags -- -A
 
 Feedback
@@ -110,6 +110,12 @@ ironnmap is an experimental prototype and is not suitable for actual use.
 
 Feel free to fork/contribute.
 
+
+Notes on nmap4j
+===============
+
+This software uses and delivers nmap4j.
+The license of the nmap4j implementation is attached in NOTICE file.
 
 [1]: http://www.trustedcomputinggroup.org/developers/trusted_network_connect
 [2]: https://nmap.org/

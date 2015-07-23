@@ -213,7 +213,7 @@ public abstract class PublishNmapStrategy {
 	 * @param discoveryMethod
 	 *            discoveryMethod
 	 */
-	@SuppressWarnings("checkstyle:parameternumber")
+	//@SuppressWarnings("checkstyle:parameternumber")
 	protected void publishDevChar(SSRC ssrc, Identifier ident1, Identifier ident2, String manufacturer, String model,
 			String os, String osVersion, String deviceType, String discoveredTime, String discovererId,
 			String discoveryMethod) {
