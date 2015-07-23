@@ -83,11 +83,11 @@ or execute ironnmap with java -jar ironnmap with following parameters.
                     -inc INCLUDE [-exc EXCLUDE]
                     [{singleTime,multiTime}] [flags [flags ...]]
                     
--purgePublisher = purge previous published data on startup #Default: nopurge
--inc = included network address(es) to scan network like 192.168.0.0/24
--exc = exclud network addresses from the include list
-singleTime = single time scan (only works with cli)  #Default: multitime (only works with subscriber mode)
-flags -- = all flags of nmap are possible(not all are supported)
+-purgePublisher = purge previous published data on startup #Default: nopurge  
+-inc = included network address(es) to scan network like 192.168.0.0/24  
+-exc = exclud network addresses from the include list  
+singleTime = single time scan (only works with cli)  #Default: multitime (only works with subscriber mode)  
+flags -- = all flags of nmap are possible(not all are supported)  
 
 an example could look like:
     singleTime -inc 192.168.1.13 -purgePublisher purge  flags -- -A
