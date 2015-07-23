@@ -24,7 +24,8 @@ ifmap:
         publisher:
             # Name of the package where publish strategy classes have to lie
             publishstrategiespath: de.hshannover.f4.trust.ironnmap.publisher.strategies.
-            # Name to the list of classes which implements the nmap strategies
+            # Name to the list of classes which implements the nmap strategies 
+            # (scan single Time strategy is always in and enabled because of build in function)
             publishstrategies:
                 nothing: disabled
         subscriber:
