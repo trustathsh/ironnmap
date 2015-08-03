@@ -92,6 +92,8 @@ flags -- = all flags of nmap are possible(not all are supported)
 an example could look like:  
     singleTime -inc 192.168.1.13 -purgePublisher purge  flags -- -A
 
+Please note that some flags needs administrator rights to be execute like Operating System Scan (-O)
+
 Feedback
 ========
 If you have any questions, problems or comments, please contact
