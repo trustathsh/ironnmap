@@ -53,7 +53,7 @@ The remaining configuration parameters can be done through the
 `ironnmap.yml` file in the ironnmap package.
 In general you have to specify:
 
-* the nmap installation path,
+* the nmap installation path, (look in the config file for more hints)
 * the MAPS URL and credentials.
 
 Have a look at the comments in `ironnmap.yml`

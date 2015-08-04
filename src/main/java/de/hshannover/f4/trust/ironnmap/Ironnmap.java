@@ -52,6 +52,8 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.inf.Subparser;
+import net.sourceforge.argparse4j.inf.Subparsers;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapErrorResult;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
 import de.hshannover.f4.trust.ifmapj.exception.InitializationException;
@@ -93,7 +95,7 @@ public final class Ironnmap {
 		try {
 			Configuration.init();
 
-			// singleTime -inc 192.168.1.14 flags -sV -PN -O
+			// singleTime -inc 192.168.1.14 flags -- -sV -PN -O
 			Namespace ns = parseArgs(args);
 
 			StrategyChainBuilder.init(Configuration.getRequestStrategiesClassnameMap(),
@@ -154,39 +156,29 @@ public final class Ironnmap {
 
 		ArgumentParser parser = ArgumentParsers.newArgumentParser("use of ironnmap").defaultHelp(true)
 				.description("publish nmap informations about hosts");
-		parser.addArgument("execution").choices("singleTime", "multiTime").nargs("?").setDefault("multiTime")
-				.help("single commandline execution or subscribing for request for investigation");
-		parser.addArgument("-purgePublisher").dest("purging").choices("purge", "nopurge").nargs("?").setConst("purge").setDefault("nopurge")
-				.help("purge previous published data");
+		parser.addArgument("-purgePublisher").dest("purging").choices("purge", "nopurge")
+				.setDefault("nopurge").help("purge previous published data");
+		parser.setDefault("execution", "multiTime");
+		Subparsers subparsers = parser.addSubparsers().dest("execution").help("sub-command help");
+		Subparser parserA = subparsers.addParser("singleTime").help("single commandline execution");
+		Subparser parserB = subparsers.addParser("multiTime").help("subscribing for request for investigation");	
+		parserB.defaultHelp(true);
 
+		parserA.addArgument("-inc").dest("include").required(true).help("include Hosts for scan");
+		parserA.addArgument("-exc").dest("exclude").help("exclude Hosts for scan");
+		parserA.addArgument("flags").dest("flags").required(true).nargs("*")
+				.help("use -- before nmap flags to use - with flags");
 		Namespace ns = null;
 		try {
-			String[] args1;
-			if (args.length > 0) {
-				args1 = new String[1];
-				args1[0] = args[0];
-			} else {
-				args1 = new String[0];
+			if(args.length == 0){
+				String[] args1 = new String[1];
+				args1[0] = "multiTime";
+				args = args1;
 			}
-			ns = parser.parseArgs(args1);
-		} catch (ArgumentParserException e) {
-			parser.handleError(e);
-			LOGGER.severe("Error parsing the commandline input... System can not start!");
-			System.exit(1);
-		}
-
-		if (ns.getString("execution").equals("singleTime")) {
-			parser.addArgument("-inc").dest("include").required(true).help("include Hosts for scan");
-			parser.addArgument("-exc").dest("exclude").help("exclude Hosts for scan");
-			parser.addArgument("flags").dest("flags").required(true).nargs("*")
-					.help("use -- before nmap flags to use - with flags");
-		}
-		ns = null;
-		try {
 			ns = parser.parseArgs(args);
 		} catch (ArgumentParserException e) {
 			parser.handleError(e);
-			LOGGER.severe("Error parsing the commandline input... System can not start!");
+			//LOGGER.severe("Error parsing the commandline input... System can not start!");
 			System.exit(1);
 		}
 		return ns;

@@ -20,6 +20,7 @@ ifmap:
             # the keystore password
             password: ironnmap
         nmap:
+            # nmap4j currently attach /bin to the path! so you have add this folder 
             path: /usr
         publisher:
             # Name of the package where publish strategy classes have to lie
