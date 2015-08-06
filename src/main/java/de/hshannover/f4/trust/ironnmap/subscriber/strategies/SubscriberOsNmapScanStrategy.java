@@ -39,7 +39,10 @@
 
 package de.hshannover.f4.trust.ironnmap.subscriber.strategies;
 
-import java.util.logging.Logger;
+
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.hshannover.f4.trust.ifmapj.channel.SSRC;
 import de.hshannover.f4.trust.ifmapj.identifier.Identifier;
@@ -58,7 +61,7 @@ import de.hshannover.f4.trust.ironnmap.subscriber.SubscriberNmapStrategy;
 
 public class SubscriberOsNmapScanStrategy extends SubscriberNmapStrategy {
 
-	private static final Logger LOGGER = Logger.getLogger(SubscriberOsNmapScanStrategy.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(SubscriberOsNmapScanStrategy.class.getName());
 
 	private static final String SUBSCRIBERNAME = "nmap_OsScan";
 
@@ -85,7 +88,7 @@ public class SubscriberOsNmapScanStrategy extends SubscriberNmapStrategy {
 
 			}
 		} catch (PropertyException e) {
-			LOGGER.severe("Couldn't read property");
+			LOGGER.fatal("Couldn't read property");
 		}
 	}
 

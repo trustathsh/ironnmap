@@ -42,7 +42,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class initialize the strategy chain to get the strategies for publishing nmap data. The config file defines
@@ -55,7 +57,7 @@ import java.util.logging.Logger;
 
 public final class StrategyChainBuilder {
 
-	private static final Logger LOGGER = Logger.getLogger(StrategyChainBuilder.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(StrategyChainBuilder.class.getName());
 
 	/**
 	 * the List/Chain with the different strategy objects
@@ -93,7 +95,7 @@ public final class StrategyChainBuilder {
 					strategyChain.add(publisherStrategy);
 				}
 			} else {
-				LOGGER.warning("Class is not enabled!: " + classname.getKey().toString());
+				LOGGER.warn("Class is not enabled!: " + classname.getKey().toString());
 			}
 		}
 	}
@@ -117,11 +119,11 @@ public final class StrategyChainBuilder {
 			}
 
 		} catch (ClassNotFoundException e) {
-			LOGGER.severe("ClassNotFound");
+			LOGGER.fatal("ClassNotFound");
 		} catch (InstantiationException e) {
-			LOGGER.severe("InstantiationException");
+			LOGGER.fatal("InstantiationException");
 		} catch (IllegalAccessException e) {
-			LOGGER.severe("IllegalAccessException");
+			LOGGER.fatal("IllegalAccessException");
 		}
 
 		return strategy;

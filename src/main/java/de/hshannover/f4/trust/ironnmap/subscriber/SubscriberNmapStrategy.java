@@ -40,7 +40,9 @@ package de.hshannover.f4.trust.ironnmap.subscriber;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.hshannover.f4.trust.ifmapj.binding.IfmapStrings;
 import de.hshannover.f4.trust.ifmapj.channel.SSRC;
@@ -67,7 +69,7 @@ import de.hshannover.f4.trust.ironnmap.utilities.IfMap;
 
 public abstract class SubscriberNmapStrategy {
 
-	private static final Logger LOGGER = Logger.getLogger(SubscriberNmapStrategy.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(SubscriberNmapStrategy.class.getName());
 
 	/**
 	 * Method to initialize the subscriber function on the Ifmap server
@@ -75,7 +77,7 @@ public abstract class SubscriberNmapStrategy {
 	 */
 	public void initSubscriber(String subscriptionroot) {
 
-		LOGGER.fine("subscribing for " + subscriptionroot);
+		LOGGER.debug("subscribing for " + subscriptionroot);
 
 		Device startIdentifier = Identifiers.createDev(subscriptionroot);
 
@@ -94,9 +96,9 @@ public abstract class SubscriberNmapStrategy {
 		try {
 			IfMap.getSsrc().subscribe(subscribeRequest);
 		} catch (IfmapErrorResult e) {
-			LOGGER.severe("SubscriberStrategy: " + e);
+			LOGGER.fatal("SubscriberStrategy: " + e);
 		} catch (IfmapException e) {
-			LOGGER.severe("SubscriberStrategy: " + e);
+			LOGGER.fatal("SubscriberStrategy: " + e);
 		}
 	}
 

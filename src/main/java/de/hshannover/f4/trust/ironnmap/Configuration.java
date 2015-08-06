@@ -42,7 +42,9 @@ package de.hshannover.f4.trust.ironnmap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.hshannover.f4.trust.ironcommon.properties.Properties;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
@@ -57,7 +59,7 @@ import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 
 public final class Configuration {
 
-	private static final Logger LOGGER = Logger.getLogger(Configuration.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(Configuration.class.getName());
 
 	/**
 	 * The path to the configuration file.

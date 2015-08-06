@@ -41,8 +41,9 @@ package de.hshannover.f4.trust.ironnmap.publisher.strategies;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nmap4j.data.NMapRun;
 import org.nmap4j.data.host.Address;
 import org.nmap4j.data.host.ports.Port;
@@ -66,7 +67,7 @@ import de.hshannover.f4.trust.ironnmap.publisher.PublishNmapStrategy;
 
 public class ScanSingleTime extends PublishNmapStrategy {
 
-	private static final Logger LOGGER = Logger.getLogger(ScanSingleTime.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(ScanSingleTime.class.getName());
 
 	String mIpInclude;
 	String mIpExclude;
@@ -220,9 +221,9 @@ public class ScanSingleTime extends PublishNmapStrategy {
 			}
 			LOGGER.info("Nmap data published");
 		} catch (UnknownHostException e) {
-			LOGGER.severe("Error lookup hostname: " + e);
+			LOGGER.fatal("Error lookup hostname: " + e);
 		} catch (MarshalException e) {
-			LOGGER.severe("Error building extended identifier from xml file: " + e);
+			LOGGER.fatal("Error building extended identifier from xml file: " + e);
 		}
 	}
 }

@@ -38,7 +38,9 @@
  */
 package de.hshannover.f4.trust.ironnmap.utilities;
 
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.hshannover.f4.trust.ifmapj.IfmapJ;
 import de.hshannover.f4.trust.ifmapj.channel.ARC;
@@ -57,7 +59,7 @@ public final class IfMap {
 	 */
 	private static SSRC ifmapSsrc = null;
 
-	private static final Logger LOGGER = Logger.getLogger(IfMap.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(IfMap.class.getName());
 
 	/**
 	 * Death constructor for code convention -> final class because utility class
@@ -94,7 +96,7 @@ public final class IfMap {
 				throw new IllegalArgumentException("unknown authentication method '" + authMethod + "'");
 			}
 		} catch (InitializationException e) {
-			LOGGER.severe("could not read the security informations for basic or cert authentication: " + e);
+			LOGGER.fatal("could not read the security informations for basic or cert authentication: " + e);
 			throw e;
 		}
 		LOGGER.info("SSRC initialized");
@@ -115,7 +117,7 @@ public final class IfMap {
 		try {
 			return ifmapSsrc.getArc();
 		} catch (InitializationException e) {
-			LOGGER.severe("could not establish the arc channel: " + e);
+			LOGGER.fatal("could not establish the arc channel: " + e);
 			System.exit(1);
 		}
 		return null;

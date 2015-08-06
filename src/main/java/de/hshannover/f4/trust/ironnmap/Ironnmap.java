@@ -39,14 +39,10 @@
 
 package de.hshannover.f4.trust.ironnmap;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Timer;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -74,9 +70,7 @@ import de.hshannover.f4.trust.ironnmap.utilities.SsrcKeepaliveThread;
 
 public final class Ironnmap {
 
-	private static final Logger LOGGER = Logger.getLogger(Ironnmap.class.getName());
-
-	private static final String LOGGING_CONFIG_FILE = "/logging.properties";
+	private static final Logger LOGGER = LogManager.getLogger(Ironnmap.class.getName());
 
 	/**
 	 * Death constructor for code convention -> final class because utility class
@@ -89,8 +83,6 @@ public final class Ironnmap {
 	 * 
 	 */
 	public static void main(String[] args) {
-
-		setupLogging();
 
 		try {
 			Configuration.init();
@@ -126,7 +118,7 @@ public final class Ironnmap {
 							flagsWithMinus);
 					oneTime.publishNmapStrategy(IfMap.getSsrc());
 				} catch (PropertyException e) {
-					LOGGER.severe("Error initializing the ScanSingleTime strategy");
+					LOGGER.fatal("Error initializing the ScanSingleTime strategy");
 				}
 				timerA.cancel();
 			} else {
@@ -136,13 +128,13 @@ public final class Ironnmap {
 			}
 
 		} catch (InitializationException e1) {
-			LOGGER.severe("Error setting up the ssrc channel... System can not start!");
+			LOGGER.fatal("Error setting up the ssrc channel... System can not start!");
 		} catch (IfmapErrorResult e1) {
-			LOGGER.severe("Error setting up the ssrc channel session... System can not start!");
+			LOGGER.fatal("Error setting up the ssrc channel session... System can not start!");
 		} catch (IfmapException e1) {
-			LOGGER.severe("Error setting up the ssrc channel session... System can not start!");
+			LOGGER.fatal("Error setting up the ssrc channel session... System can not start!");
 		} catch (PropertyException e1) {
-			LOGGER.severe("Error setting up the configuration... System can not start!");
+			LOGGER.fatal("Error setting up the configuration... System can not start!");
 		}
 
 	}
@@ -156,12 +148,12 @@ public final class Ironnmap {
 
 		ArgumentParser parser = ArgumentParsers.newArgumentParser("use of ironnmap").defaultHelp(true)
 				.description("publish nmap informations about hosts");
-		parser.addArgument("-purgePublisher").dest("purging").choices("purge", "nopurge")
-				.setDefault("nopurge").help("purge previous published data");
+		parser.addArgument("-purgePublisher").dest("purging").choices("purge", "nopurge").setDefault("nopurge")
+				.help("purge previous published data");
 		parser.setDefault("execution", "multiTime");
 		Subparsers subparsers = parser.addSubparsers().dest("execution").help("sub-command help");
 		Subparser parserA = subparsers.addParser("singleTime").help("single commandline execution");
-		Subparser parserB = subparsers.addParser("multiTime").help("subscribing for request for investigation");	
+		Subparser parserB = subparsers.addParser("multiTime").help("subscribing for request for investigation");
 		parserB.defaultHelp(true);
 
 		parserA.addArgument("-inc").dest("include").required(true).help("include Hosts for scan");
@@ -170,7 +162,7 @@ public final class Ironnmap {
 				.help("use -- before nmap flags to use - with flags");
 		Namespace ns = null;
 		try {
-			if(args.length == 0){
+			if (args.length == 0) {
 				String[] args1 = new String[1];
 				args1[0] = "multiTime";
 				args = args1;
@@ -178,41 +170,10 @@ public final class Ironnmap {
 			ns = parser.parseArgs(args);
 		} catch (ArgumentParserException e) {
 			parser.handleError(e);
-			//LOGGER.severe("Error parsing the commandline input... System can not start!");
+			// LOGGER.severe("Error parsing the commandline input... System can not start!");
 			System.exit(1);
 		}
 		return ns;
-	}
-
-	/**
-	 * Initialize logging
-	 * 
-	 */
-
-	public static void setupLogging() {
-
-		InputStream in = Ironnmap.class.getResourceAsStream(LOGGING_CONFIG_FILE);
-
-		try {
-			LogManager.getLogManager().readConfiguration(in);
-		} catch (Exception e) {
-			Handler handler = new ConsoleHandler();
-			handler.setLevel(Level.ALL);
-
-			Logger.getLogger("").addHandler(handler);
-			Logger.getLogger("").setLevel(Level.INFO);
-
-			LOGGER.warning("could not read " + LOGGING_CONFIG_FILE + ", using defaults");
-
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					LOGGER.warning("could not close log config inputstream: " + e);
-				}
-			}
-		}
 	}
 
 }

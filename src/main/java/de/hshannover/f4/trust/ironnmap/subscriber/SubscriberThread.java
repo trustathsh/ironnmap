@@ -40,7 +40,9 @@
 package de.hshannover.f4.trust.ironnmap.subscriber;
 
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.hshannover.f4.trust.ifmapj.channel.ARC;
 import de.hshannover.f4.trust.ifmapj.exception.CommunicationException;
@@ -64,7 +66,7 @@ import de.hshannover.f4.trust.ironnmap.utilities.IfMap;
 
 public class SubscriberThread extends Thread {
 
-	private static final Logger LOGGER = Logger.getLogger(SubscriberThread.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(SubscriberThread.class.getName());
 
 	@Override
 	public void run() {
@@ -90,37 +92,37 @@ public class SubscriberThread extends Thread {
 					List<SearchResult> results = pollResult.getResults();
 					for (SearchResult searchResult : results) {
 						if (searchResult.getType() == Type.searchResult) {
-							LOGGER.finer("processing searchResult ...");
+							LOGGER.debug("processing searchResult ...");
 							for (int i = 0; i < SubscriberStrategyChainBuilder.getSize(); i++) {
 								SubscriberStrategyChainBuilder.getElementAt(i).executeNmapScanStrategy(
 										IfMap.getSsrc(), searchResult);
 							}
 						} else if (searchResult.getType() == Type.updateResult) {
-							LOGGER.finer("processing updateResult ...");
+							LOGGER.debug("processing updateResult ...");
 							for (int i = 0; i < SubscriberStrategyChainBuilder.getSize(); i++) {
 								SubscriberStrategyChainBuilder.getElementAt(i).executeNmapScanStrategy(
 										IfMap.getSsrc(), searchResult);
 							}
 						} else if (searchResult.getType() == Type.notifyResult) {
-							LOGGER.finer("processing notifyResult ...");
+							LOGGER.debug("processing notifyResult ...");
 							for (int i = 0; i < SubscriberStrategyChainBuilder.getSize(); i++) {
 								SubscriberStrategyChainBuilder.getElementAt(i).executeNmapScanStrategy(
 										IfMap.getSsrc(), searchResult);
 							}
 						} else if (searchResult.getType() == Type.deleteResult) {
-							LOGGER.finer("deleteResult found doing nothing");
+							LOGGER.debug("deleteResult found doing nothing");
 						}
 					}
 				}
 			}
 		} catch (IfmapErrorResult e) {
-			LOGGER.severe("SubscriberThread: " + e);
+			LOGGER.fatal("SubscriberThread: " + e);
 		} catch (EndSessionException e) {
-			LOGGER.warning("SubscriberThread: session ended during poll " + e);
+			LOGGER.warn("SubscriberThread: session ended during poll " + e);
 		} catch (CommunicationException e) {
-			LOGGER.severe("SubscriberThread: " + e);
+			LOGGER.fatal("SubscriberThread: " + e);
 		} catch (IfmapException e) {
-			LOGGER.severe("SubscriberThread: " + e);
+			LOGGER.fatal("SubscriberThread: " + e);
 		}
 
 	}

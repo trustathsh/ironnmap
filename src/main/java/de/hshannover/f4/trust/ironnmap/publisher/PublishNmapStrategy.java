@@ -39,8 +39,9 @@
 
 package de.hshannover.f4.trust.ironnmap.publisher;
 
-import java.util.logging.Logger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.nmap4j.Nmap4j;
 import org.nmap4j.core.nmap.NMapExecutionException;
 import org.nmap4j.core.nmap.NMapInitializationException;
@@ -75,7 +76,7 @@ public abstract class PublishNmapStrategy {
 	protected static final String IRONNMAP_SIMU_METADATA_NS_URI = "http://simu-project.de/XMLSchema/1";
 	protected static final String IRONNMAP_SIMU_METADATA_NS_PREFIX = "simu";
 
-	private static final Logger LOGGER = Logger.getLogger(PublishNmapStrategy.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(PublishNmapStrategy.class.getName());
 
 	private Nmap4j mNmap4j;
 
@@ -120,16 +121,16 @@ public abstract class PublishNmapStrategy {
 		try {
 			mNmap4j.execute();
 		} catch (NMapInitializationException e) {
-			LOGGER.severe("Error initializing NMAP: " + e);
+			LOGGER.fatal("Error initializing NMAP: " + e);
 		} catch (NMapExecutionException e) {
-			LOGGER.severe("Error executing NMAP: " + e);
+			LOGGER.fatal("Error executing NMAP: " + e);
 		}
 
 		if (!mNmap4j.hasError()) {
 			nmapRun = mNmap4j.getResult();
 			System.out.println(mNmap4j.getOutput());
 		} else {
-			LOGGER.severe(mNmap4j.getExecutionResults().getErrors());
+			LOGGER.fatal(mNmap4j.getExecutionResults().getErrors());
 		}
 
 		return nmapRun;
@@ -155,9 +156,9 @@ public abstract class PublishNmapStrategy {
 				ssrc.publish(Requests.createPublishReq(publishUpdate));
 			}
 		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		}
 
 	}
@@ -180,9 +181,9 @@ public abstract class PublishNmapStrategy {
 					MetadataLifetime.forever);
 			ssrc.publish(Requests.createPublishReq(publishUpdate));
 		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		}
 
 	}
@@ -225,9 +226,9 @@ public abstract class PublishNmapStrategy {
 					MetadataLifetime.forever);
 			ssrc.publish(Requests.createPublishReq(publishUpdate));
 		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		}
 
 	}
@@ -254,9 +255,9 @@ public abstract class PublishNmapStrategy {
 					MetadataLifetime.forever);
 			ssrc.publish(Requests.createPublishReq(publishUpdate));
 		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		}
 
 	}
@@ -280,9 +281,9 @@ public abstract class PublishNmapStrategy {
 					MetadataLifetime.forever);
 			ssrc.publish(Requests.createPublishReq(publishUpdate));
 		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		}
 
 	}
@@ -306,9 +307,9 @@ public abstract class PublishNmapStrategy {
 					MetadataLifetime.forever);
 			ssrc.publish(Requests.createPublishReq(publishUpdate));
 		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		}
 
 	}
@@ -332,9 +333,9 @@ public abstract class PublishNmapStrategy {
 					MetadataLifetime.forever);
 			ssrc.publish(Requests.createPublishReq(publishUpdate));
 		} catch (IfmapErrorResult e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		} catch (IfmapException e) {
-			LOGGER.severe("Error publishing update data: " + e);
+			LOGGER.fatal("Error publishing update data: " + e);
 		}
 
 	}

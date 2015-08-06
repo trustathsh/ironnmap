@@ -42,7 +42,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class initialize the Subscriber chain to poll the Ifmap server for request for investigation metadata. In
@@ -62,7 +64,7 @@ public final class SubscriberStrategyChainBuilder {
 	 * 
 	 */
 
-	private static final Logger LOGGER = Logger.getLogger(SubscriberStrategyChainBuilder.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(SubscriberStrategyChainBuilder.class.getName());
 
 	/**
 	 * the List/Chain with the different strategy objects
@@ -100,7 +102,7 @@ public final class SubscriberStrategyChainBuilder {
 				if (subscriber != null) {
 					subscriberChain.add(subscriber);
 				} else {
-					LOGGER.warning("Class is not enabled!: " + classname.getKey().toString());
+					LOGGER.warn("Class is not enabled!: " + classname.getKey().toString());
 				}
 			}
 		}
@@ -125,11 +127,11 @@ public final class SubscriberStrategyChainBuilder {
 			}
 
 		} catch (ClassNotFoundException e) {
-			LOGGER.severe("SubscriberChainBuilder: ClassNotFound");
+			LOGGER.fatal("SubscriberChainBuilder: ClassNotFound");
 		} catch (InstantiationException e) {
-			LOGGER.severe("SubscriberChainBuilder: InstantiationException");
+			LOGGER.fatal("SubscriberChainBuilder: InstantiationException");
 		} catch (IllegalAccessException e) {
-			LOGGER.severe("SubscriberChainBuilder: IllegalAccessException");
+			LOGGER.fatal("SubscriberChainBuilder: IllegalAccessException");
 		}
 
 		return subscriberStrategy;
