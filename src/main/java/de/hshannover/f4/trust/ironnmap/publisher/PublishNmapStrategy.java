@@ -362,16 +362,17 @@ public abstract class PublishNmapStrategy {
 				if (host.getHostnames().getHostname().getName() != null) {
 					name = host.getHostnames().getHostname().getName();
 				}
-				if (port.getService().getName() != null) {
-					type = port.getService().getName();
-				}
-
-				extendedIdentifierXmlService = "<simu:service " + "administrative-domain=\"" + ip + "\" " + "name=\""
-						+ name + "\" " + "type=\"" + type + "\" " + "port=\"" + port.getPortId() + "\" "
-						+ "protocol=\"" + port.getProtocol() + "\" " + "xmlns:simu=\"" + IRONNMAP_SIMU_METADATA_NS_URI
-						+ "\" " + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + "xsi:schemaLocation="
-						+ "\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" " + "/>";
 			}
+			if (port.getService().getName() != null) {
+				type = port.getService().getName();
+			}
+
+			extendedIdentifierXmlService = "<simu:service " + "administrative-domain=\"" + ip + "\" " + "name=\""
+					+ name + "\" " + "type=\"" + type + "\" " + "port=\"" + port.getPortId() + "\" " + "protocol=\""
+					+ port.getProtocol() + "\" " + "xmlns:simu=\"" + IRONNMAP_SIMU_METADATA_NS_URI + "\" "
+					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + "xsi:schemaLocation="
+					+ "\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" " + "/>";
+
 		}
 		return extendedIdentifierXmlService;
 	}
@@ -396,13 +397,14 @@ public abstract class PublishNmapStrategy {
 				if (host.getHostnames().getHostname().getName() != null) {
 					name = host.getHostnames().getHostname().getName();
 				}
-
-				extendedIdentifierXmlService = "<simu:service " + "administrative-domain=\"" + ip + "\" " + "name=\""
-						+ name + "\" " + "type=\"" + type + "\" " + "port=\"" + "\" " + "protocol=\"" + "\" "
-						+ "xmlns:simu=\"" + IRONNMAP_SIMU_METADATA_NS_URI + "\" "
-						+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + "xsi:schemaLocation="
-						+ "\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" " + "/>";
 			}
+
+			extendedIdentifierXmlService = "<simu:service " + "administrative-domain=\"" + ip + "\" " + "name=\""
+					+ name + "\" " + "type=\"" + type + "\" " + "port=\"" + "\" " + "protocol=\"" + "\" "
+					+ "xmlns:simu=\"" + IRONNMAP_SIMU_METADATA_NS_URI + "\" "
+					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + "xsi:schemaLocation="
+					+ "\"http://www.example.com/extended-identifiers example-identifiers-2.1v1.xsd\" " + "/>";
+
 		}
 		return extendedIdentifierXmlService;
 	}
