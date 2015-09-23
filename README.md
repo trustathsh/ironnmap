@@ -90,7 +90,7 @@ singleTime = single time scan (only works with cli)  #Default: multitime (only w
 flags -- = all flags of nmap are possible(not all are supported)  
 
 an example could look like:  
-    singleTime -inc 192.168.1.13 -purgePublisher purge  flags -- -A
+    -purgePublisher purge singleTime -inc 192.168.1.13 flags -- -A
 
 Please note that some flags needs administrator rights to be execute like Operating System Scan (-O)
 
