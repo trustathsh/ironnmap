@@ -7,17 +7,17 @@
  *    | | | |  | |_| \__ \ |_| | (_| |  _  |\__ \|  _  |
  *    |_| |_|   \__,_|___/\__|\ \__,_|_| |_||___/|_| |_|
  *                             \____/
- * 
+ *
  * =====================================================
- * 
+ *
  * Hochschule Hannover
  * (University of Applied Sciences and Arts, Hannover)
  * Faculty IV, Dept. of Computer Science
  * Ricklinger Stadtweg 118, 30459 Hannover, Germany
- * 
+ *
  * Email: trust@f4-i.fh-hannover.de
  * Website: http://trust.f4.hs-hannover.de/
- * 
+ *
  * This file is part of ironnmap, version 0.1.0, implemented by the Trust@HsH
  * research group at the Hochschule Hannover.
  * %%
@@ -26,9 +26,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,33 +39,37 @@
 
 package de.hshannover.f4.trust.ironnmap;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Timer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.inf.ArgumentParser;
-import net.sourceforge.argparse4j.inf.ArgumentParserException;
-import net.sourceforge.argparse4j.inf.Namespace;
-import net.sourceforge.argparse4j.inf.Subparser;
-import net.sourceforge.argparse4j.inf.Subparsers;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapErrorResult;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
 import de.hshannover.f4.trust.ifmapj.exception.InitializationException;
+import de.hshannover.f4.trust.ifmapj.messages.PublishRequest;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.ironnmap.publisher.StrategyChainBuilder;
 import de.hshannover.f4.trust.ironnmap.publisher.strategies.ScanSingleTime;
 import de.hshannover.f4.trust.ironnmap.subscriber.SubscriberStrategyChainBuilder;
 import de.hshannover.f4.trust.ironnmap.subscriber.SubscriberThread;
 import de.hshannover.f4.trust.ironnmap.utilities.IfMap;
+import de.hshannover.f4.trust.ironnmap.utilities.SelfPublisher;
 import de.hshannover.f4.trust.ironnmap.utilities.SsrcKeepaliveThread;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.inf.Subparser;
+import net.sourceforge.argparse4j.inf.Subparsers;
 
 /**
  * This class starts the application It creates the threads for publishing, keepalives. It setups logging too
- * 
+ *
  * @author Marius Rohde
- * 
+ *
  */
 
 public final class Ironnmap {
@@ -80,7 +84,7 @@ public final class Ironnmap {
 
 	/**
 	 * Main method ... start me here!!!
-	 * 
+	 *
 	 */
 	public static void main(String[] args) {
 
@@ -107,12 +111,27 @@ public final class Ironnmap {
 			}
 
 			Timer timerA = new Timer();
-			timerA.schedule(new SsrcKeepaliveThread(), 1000, Configuration.ifmapKeepalive() * 1000 * 60);
+			timerA.schedule(new SsrcKeepaliveThread(), 1000, Configuration.ifmapKeepalive()
+					* 1000 * 60);
+
+			if (Configuration.selfPublishEnable()) {
+				LOGGER.info("active self-publisher ...");
+				try {
+					String ipValue = InetAddress.getLocalHost().getHostAddress();
+					String deviceName = Configuration.selfPublishDevice();
+
+					PublishRequest selfPublishRequest = SelfPublisher.createSelfPublishRequest(ipValue, deviceName);
+					IfMap.getSsrc().publish(selfPublishRequest);
+				} catch (UnknownHostException e) {
+					LOGGER.warn("Could not detect local IP address, not publishing self-information");
+				}
+			}
 
 			if (ns.getString("execution").equals("singleTime")) {
 				String flagsWithMinus = "";
 				for (Object flag : ns.getList("flags").subList(1, ns.getList("flags").size()))
-					flagsWithMinus += "" + flag.toString() + " ";
+					flagsWithMinus += ""
+							+ flag.toString() + " ";
 				try {
 					ScanSingleTime oneTime = new ScanSingleTime(ns.getString("include"), ns.getString("exclude"),
 							flagsWithMinus);
@@ -123,7 +142,7 @@ public final class Ironnmap {
 				timerA.cancel();
 			} else {
 				new SubscriberThread().start();
-				LOGGER.info("Subscriber startet.");
+				LOGGER.info("Subscriber started.");
 				// TODO super clean shutdown
 			}
 
@@ -141,7 +160,7 @@ public final class Ironnmap {
 
 	/**
 	 * parse Arguments
-	 * 
+	 *
 	 * @return Namespace Object with parameters
 	 */
 	public static Namespace parseArgs(String[] args) {

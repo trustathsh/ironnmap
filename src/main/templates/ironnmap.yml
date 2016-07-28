@@ -29,6 +29,9 @@ ifmap:
             # (scan single Time strategy is always in and enabled because of build in function)
             publishstrategies:
                 nothing: disabled
+            selfpublish:
+                enable: true
+                device: nmap-device
         subscriber:
             # the name of the PDP
             subscriptionroot: DHCP
@@ -37,7 +40,3 @@ ifmap:
             # Name to the list of classes which implements the nmap subscriber strategies
             subscriberstrategies:
                 SubscriberOsNmapScanStrategy: enabled
-
-
-
-
